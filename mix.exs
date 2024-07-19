@@ -49,7 +49,8 @@ defmodule LinkEquipment.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:rustler, "~> 0.34.0"},
-      {:oban, "~> 2.17"}
+      {:oban, "~> 2.17"},
+      {:styler, "~> 1.0.0-rc.1", only: [:dev, :test], runtime: false}
     ]
   end
 

@@ -11,8 +11,7 @@ defmodule LinkEquipment.Application do
       LinkEquipmentWeb.Telemetry,
       LinkEquipment.Repo,
       {Oban, Application.fetch_env!(:link_equipment, Oban)},
-      {Ecto.Migrator,
-       repos: Application.fetch_env!(:link_equipment, :ecto_repos), skip: skip_migrations?()},
+      {Ecto.Migrator, repos: Application.fetch_env!(:link_equipment, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:link_equipment, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LinkEquipment.PubSub},
       # Start a worker by calling: LinkEquipment.Worker.start_link(arg)
@@ -35,7 +34,7 @@ defmodule LinkEquipment.Application do
     :ok
   end
 
-  defp skip_migrations?() do
+  defp skip_migrations? do
     # By default, sqlite migrations are run when using a release
     System.get_env("RELEASE_NAME") != nil
   end

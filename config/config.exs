@@ -7,9 +7,14 @@
 # General application configuration
 import Config
 
-config :link_equipment,
-  ecto_repos: [LinkEquipment.Repo],
-  generators: [timestamp_type: :utc_datetime, binary_id: true]
+# Configure esbuild (the version is required)
+config :esbuild,
+  version: "0.17.11",
+  link_equipment: [
+    args: ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
 
 # Configures the endpoint
 config :link_equipment, LinkEquipmentWeb.Endpoint,
@@ -22,15 +27,14 @@ config :link_equipment, LinkEquipmentWeb.Endpoint,
   pubsub_server: LinkEquipment.PubSub,
   live_view: [signing_salt: "7wNXycBX"]
 
-# Configure esbuild (the version is required)
-config :esbuild,
-  version: "0.17.11",
-  link_equipment: [
-    args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../assets", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
+config :link_equipment, Oban,
+  engine: Oban.Engines.Lite,
+  queues: [default: 10],
+  repo: LinkEquipment.Repo
+
+config :link_equipment,
+  ecto_repos: [LinkEquipment.Repo],
+  generators: [timestamp_type: :utc_datetime, binary_id: true]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -39,11 +43,6 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
-
-config :link_equipment, Oban,
-  engine: Oban.Engines.Lite,
-  queues: [default: 10],
-  repo: LinkEquipment.Repo
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -1,4 +1,5 @@
 defmodule LinkEquipment.Lychee do
+  @moduledoc false
   use Rustler,
     otp_app: :link_equipment,
     crate: :linkequipment_lychee
@@ -7,6 +8,7 @@ defmodule LinkEquipment.Lychee do
   def collect_links(_url), do: :erlang.nif_error(:nif_not_loaded)
 
   defmodule Link do
+    @moduledoc false
     defstruct [
       :url,
       :source,

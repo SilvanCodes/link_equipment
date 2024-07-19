@@ -17,6 +17,8 @@ config :link_equipment, LinkEquipmentWeb.Endpoint,
   secret_key_base: "9nn3olMORdRoH8I2PCBRLi6OgAeARxgPGrjgBI1twYqQvZuvtnWkrOEGrzwLgdTq",
   server: false
 
+config :link_equipment, Oban, testing: :inline
+
 # Print only warnings and errors during test
 config :logger, level: :warning
 
@@ -28,4 +30,3 @@ config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
 # config/test.exs
-config :link_equipment, Oban, testing: :inline
