@@ -10,9 +10,9 @@ defmodule LinkEquipment.Application do
     children = [
       LinkEquipmentWeb.Telemetry,
       LinkEquipment.Repo,
+      {Oban, Application.fetch_env!(:link_equipment, Oban)},
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:link_equipment, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:link_equipment, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:link_equipment, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LinkEquipment.PubSub},
       # Start a worker by calling: LinkEquipment.Worker.start_link(arg)
