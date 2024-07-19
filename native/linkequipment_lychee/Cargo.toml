@@ -1,0 +1,17 @@
+[package]
+name = "linkequipment_lychee"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "linkequipment_lychee"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+lychee-lib = "0.15.1"
+reqwest = "0.12.5"
+rustler = "0.34.0"
+tokio = "1.38.1"
+tokio-stream = "0.1.15"

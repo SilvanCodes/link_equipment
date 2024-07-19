@@ -27,6 +27,7 @@ link_equipment-*.tar
 
 # Ignore assets that are produced by build tools.
 /priv/static/assets/
+/priv/native/
 
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json
@@ -39,3 +40,5 @@ npm-debug.log
 *.db
 *.db-*
 
+# vscode config
+.vscode
