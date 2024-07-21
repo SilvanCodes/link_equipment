@@ -4,7 +4,7 @@ use rustler::NifStruct;
 use tokio_stream::StreamExt;
 
 #[derive(Debug, NifStruct)]
-#[module = "LinkEquipment.Lychee.Link"]
+#[module = "LinkEquipment.Link"]
 struct Link {
     url: Uri,
     source: Uri,

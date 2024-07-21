@@ -6,14 +6,4 @@ defmodule LinkEquipment.Lychee do
 
   # When your NIF is loaded, it will override this function.
   def collect_links(_url), do: :erlang.nif_error(:nif_not_loaded)
-
-  defmodule Link do
-    @moduledoc false
-    defstruct [
-      :url,
-      :source,
-      :element,
-      :attribute
-    ]
-  end
 end
