@@ -3,9 +3,16 @@ defmodule LinkEquipment.Link.Factory do
   alias Ecto.Changeset
   alias LinkEquipment.Link
 
+  @type fields :: %{
+          optional(:url) => URI.t() | String.t(),
+          optional(:source_document_url) => URI.t() | String.t(),
+          optional(:html_element) => String.t() | nil,
+          optional(:element_attribute) => String.t() | nil
+        }
+
   @type opts :: [html_element: :a_tag | :audio_tag]
 
-  @spec build(map(), opts()) :: Link.t()
+  @spec build(fields(), opts()) :: Link.t()
   def build(fields \\ %{}, opts \\ [html_element: :a_tag]) do
     fields =
       fields

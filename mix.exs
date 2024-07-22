@@ -8,6 +8,7 @@ defmodule LinkEquipment.MixProject do
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      test_paths: ["lib"],
       aliases: aliases(),
       deps: deps()
     ]

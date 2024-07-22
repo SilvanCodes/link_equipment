@@ -2,12 +2,23 @@ defmodule LinkEquipment.Link.Repo do
   alias Ecto.Changeset
   alias LinkEquipment.Link
 
-  @spec insert(Link.t() | Changeset.t()) :: {:ok, Link.t()} | {:error, Changeset.t()}
-  def insert(%Link{} = link) do
-    LinkEquipment.Repo.insert(link)
-  end
+  require Protocol
 
-  def insert(%Changeset{} = changeset) do
-    LinkEquipment.Repo.insert(changeset)
-  end
+  Protocol.derive(Jason.Encoder, URI,
+    only: [
+      :authority,
+      :fragment,
+      :host,
+      :path,
+      :port,
+      :query,
+      :scheme,
+      :userinfo
+    ]
+  )
+
+  @spec insert(Link.t() | Changeset.t()) :: {:ok, Link.t()} | {:error, Changeset.t()}
+  defdelegate insert(link_or_changeset), to: LinkEquipment.Repo
+
+  def query(query), do: LinkEquipment.Repo.all(query)
 end

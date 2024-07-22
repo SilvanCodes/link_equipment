@@ -3,6 +3,8 @@ defmodule LinkEquipment.Link do
 
   use Ecto.Schema
 
+  import Ecto.Query
+
   alias Ecto.Changeset
 
   @timestamps_opts [type: :utc_datetime]
@@ -27,5 +29,11 @@ defmodule LinkEquipment.Link do
     link
     |> Changeset.cast(params, [:url, :source_document_url, :html_element, :element_attribute])
     |> Changeset.validate_required([:url, :source_document_url])
+  end
+
+  def all, do: __MODULE__
+
+  def all_from_source(query \\ all(), source_document_url) do
+    from(link in query, where: link.source_document_url == ^source_document_url)
   end
 end
