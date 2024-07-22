@@ -12,6 +12,7 @@ defmodule LinkEquipment.LinkTest do
 
     Link.Factory.insert(%{source_document_url: other_source})
 
-    assert [_, _] = wanted_source |> Link.all_from_source() |> Link.Repo.query()
+    assert [%{source_document_url: ^wanted_source}, %{source_document_url: ^wanted_source}] =
+             wanted_source |> Link.all_from_source() |> Link.Repo.query()
   end
 end

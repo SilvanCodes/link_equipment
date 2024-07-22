@@ -6,6 +6,7 @@ defmodule LinkEquipment.Link do
   import Ecto.Query
 
   alias Ecto.Changeset
+  alias LinkEquipment.Repo.EctoURI
 
   @timestamps_opts [type: :utc_datetime]
 
@@ -17,8 +18,8 @@ defmodule LinkEquipment.Link do
         }
 
   schema "links" do
-    field :url, :map
-    field :source_document_url, :map
+    field :url, EctoURI
+    field :source_document_url, EctoURI
     field :html_element, :string
     field :element_attribute, :string
 
