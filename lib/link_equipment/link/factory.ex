@@ -1,6 +1,7 @@
 defmodule LinkEquipment.Link.Factory do
   @moduledoc false
-  alias Ecto.Changeset
+  use LinkEquipment.Factory
+
   alias LinkEquipment.Link
 
   @type fields :: %{
@@ -14,6 +15,15 @@ defmodule LinkEquipment.Link.Factory do
 
   @spec build(fields(), opts()) :: Link.t()
   def build(fields \\ %{}, opts \\ [html_element: :a_tag]) do
+    case Map.keys(fields) -- Link.__schema__(:fields) do
+      [] ->
+        :ok
+
+      disallowed_fields ->
+        raise ArgumentError,
+              "#{inspect(__MODULE__)} does not accept fields #{inspect(disallowed_fields)} as they are not defined in the schema."
+    end
+
     fields =
       fields
       |> Map.put_new(:url, Faker.Internet.url())
@@ -24,9 +34,6 @@ defmodule LinkEquipment.Link.Factory do
 
     struct(Link, fields)
   end
-
-  @spec insert(map(), opts()) :: {:ok, Link.t()} | {:error, Changeset.t()}
-  def insert(fields \\ %{}, opts \\ []), do: Link.Repo.insert(build(fields, opts))
 
   defp html_element(fields, nil), do: fields
 

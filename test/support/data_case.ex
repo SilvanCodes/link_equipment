@@ -24,6 +24,7 @@ defmodule LinkEquipment.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import LinkEquipment.DataCase
+      import LinkEquipment.Factory
 
       alias LinkEquipment.Repo
     end
