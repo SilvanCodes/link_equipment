@@ -15,15 +15,6 @@ defmodule LinkEquipment.Link.Factory do
 
   @spec build(fields(), opts()) :: Link.t()
   def build(fields \\ %{}, opts \\ [html_element: :a_tag]) do
-    case Map.keys(fields) -- Link.__schema__(:fields) do
-      [] ->
-        :ok
-
-      disallowed_fields ->
-        raise ArgumentError,
-              "#{inspect(__MODULE__)} does not accept fields #{inspect(disallowed_fields)} as they are not defined in the schema."
-    end
-
     fields =
       fields
       |> Map.put_new(:url, Faker.Internet.url())

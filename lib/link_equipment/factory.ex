@@ -63,6 +63,8 @@ defmodule LinkEquipment.Factory do
 
       alias LinkEquipment.Factory
 
+      @before_compile behaviour
+
       @entity __MODULE__ |> Atom.to_string() |> String.trim_trailing(".Factory") |> String.to_existing_atom()
 
       @entity_repo String.to_existing_atom("#{@entity}.Repo")
@@ -76,6 +78,25 @@ defmodule LinkEquipment.Factory do
       def insert(fields, opts), do: @entity_repo.insert(build(fields, opts))
 
       defoverridable behaviour
+    end
+  end
+
+  defmacro __before_compile__(env) do
+    Module.put_attribute(env.module, :ecto_internal_fields, [:id, :inserted_at, :updated_at])
+
+    quote location: :keep do
+      defoverridable(build: 2)
+
+      def build(fields, opts) do
+        case Map.keys(fields) -- @entity.__schema__(:fields) -- @ecto_internal_fields do
+          [] ->
+            super(fields, opts)
+
+          disallowed_fields ->
+            raise ArgumentError,
+                  "#{inspect(__MODULE__)} does not accept fields #{inspect(disallowed_fields)} as they are not defined in the schema or internally managed."
+        end
+      end
     end
   end
 end
