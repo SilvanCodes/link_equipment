@@ -26,3 +26,10 @@ ENV HEX_VERSION=v2.1.1
 # hex: https://github.com/hexpm/hex/releases
 # rebar (matching version depending on elixir? -> see: https://github.com/elixir-lang/elixir/blob/cc9e9b29a7b473010ed17f894e6a576983a9c294/lib/mix/lib/mix/tasks/local.rebar.ex#L124)
 RUN bash -ic "mix archive.install github hexpm/hex ref ${HEX_VERSION} --force && mix local.rebar --force"
+
+# setup persistent bash history
+RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
+    && sudo mkdir /commandhistory \
+    && sudo touch /commandhistory/.bash_history \
+    && sudo chmod -R 777 /commandhistory \
+    && echo "${SNIPPET}" >> "${HOME}/.bashrc"
