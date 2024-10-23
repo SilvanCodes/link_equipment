@@ -33,3 +33,6 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhisto
     && sudo touch /commandhistory/.bash_history \
     && sudo chmod -R 777 /commandhistory \
     && echo "${SNIPPET}" >> "${HOME}/.bashrc"
+
+# get inotify-tools for live reload from phoenix, see: https://hexdocs.pm/phoenix/installation.html#inotify-tools-for-linux-users
+RUN sudo install-packages inotify-tools
