@@ -1,0 +1,32 @@
+{
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "remoteUser": "gitpod",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "files.autoSave": "onFocusChange",
+                "editor.formatOnSave": true,
+                "gitlens": {
+                    "showWelcomeOnInstall": false,
+                    "showWhatsNewAfterUpgrades": false
+                },
+                "terminal.integrated.scrollback": 10000
+            },
+            "extensions": [
+                "ms-azuretools.vscode-docker",
+                "eamodio.gitlens",
+                "mikestead.dotenv",
+                "JakeBecker.elixir-ls",
+                "pantajoe.vscode-elixir-credo",
+                "phoenixframework.phoenix",
+                "yzhang.markdown-all-in-one",
+                "cweijan.vscode-database-client2",
+                "humao.rest-client",
+                "GitHub.vscode-github-actions",
+                "mechatroner.rainbow-csv"
+            ]
+        }
+    }
+}
