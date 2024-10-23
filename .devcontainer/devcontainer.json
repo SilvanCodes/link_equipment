@@ -13,8 +13,11 @@
                     "showWhatsNewAfterUpgrades": false
                 },
                 "terminal.integrated.scrollback": 10000,
-                "emmet.includeLanguages": {
-                    "phoenix-heex": "html"
+                "emmet": {
+                    "triggerExpansionOnTab": true,
+                    "includeLanguages": {
+                        "phoenix-heex": "html"
+                    }
                 }
             },
             "extensions": [
