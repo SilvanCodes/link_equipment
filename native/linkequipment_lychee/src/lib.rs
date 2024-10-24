@@ -56,10 +56,10 @@ impl From<reqwest::Url> for Uri {
     }
 }
 
-async fn do_collect_links(url: String) -> Result<Vec<Request>> {
+async fn do_collect_links(url: Url) -> Result<Vec<Request>> {
     // Collect all links from the following inputs
     let inputs = vec![Input {
-        source: InputSource::RemoteUrl(Box::new(Url::parse(&url).unwrap())),
+        source: InputSource::RemoteUrl(Box::new(url)),
         file_type_hint: None,
         excluded_paths: None,
     }];
@@ -74,6 +74,7 @@ async fn do_collect_links(url: String) -> Result<Vec<Request>> {
 
 #[rustler::nif]
 fn collect_links(url: String) -> std::result::Result<Vec<Link>, ()> {
+    let url = Url::parse(&url).unwrap();
     let rt = tokio::runtime::Runtime::new().unwrap();
     let future = do_collect_links(url);
     let result = rt.block_on(future);
