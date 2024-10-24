@@ -52,7 +52,8 @@ defmodule LinkEquipment.MixProject do
       {:rustler, "~> 0.34.0"},
       {:oban, "~> 2.17"},
       {:styler, "~> 1.1.2", only: [:dev, :test], runtime: false},
-      {:faker, "~> 0.18", only: :test}
+      {:faker, "~> 0.18", only: :test},
+      {:phexel, git: "https://github.com/SilvanCodes/phexel"}
     ]
   end
 

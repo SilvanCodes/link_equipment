@@ -83,6 +83,9 @@ defmodule LinkEquipmentWeb do
     quote do
       # Core UI components and translation
       import LinkEquipmentWeb.CoreComponents
+      # Layouting components
+      import Phexel
+
       # HTML escaping functionality
       import Phoenix.HTML
 

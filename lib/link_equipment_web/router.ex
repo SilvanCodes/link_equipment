@@ -17,7 +17,7 @@ defmodule LinkEquipmentWeb.Router do
   scope "/", LinkEquipmentWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :default
   end
 
   # Other scopes may use custom stacks.

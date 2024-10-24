@@ -1,0 +1,6 @@
+@import "../../deps/phexel/assets/elc.css";
+@import "scale.css";
+
+html {
+    scrollbar-gutter: stable
+}

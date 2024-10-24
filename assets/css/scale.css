@@ -1,0 +1,34 @@
+:root {
+    /* Ratios for maintaining visual consistency. */
+    --ratio: 1.33;
+  
+    --s-5: calc(var(--s-4) / var(--ratio));
+    --s-4: calc(var(--s-3) / var(--ratio));
+    --s-3: calc(var(--s-2) / var(--ratio));
+    --s-2: calc(var(--s-1) / var(--ratio));
+    --s-1: calc(var(--s0) / var(--ratio));
+    --s0: 1rem;
+    --s1: calc(var(--s0) * var(--ratio));
+    --s2: calc(var(--s1) * var(--ratio));
+    --s3: calc(var(--s2) * var(--ratio));
+    --s4: calc(var(--s3) * var(--ratio));
+    --s5: calc(var(--s4) * var(--ratio));
+  
+    --t-5: calc(var(--t-4) / var(--ratio));
+    --t-4: calc(var(--t-3) / var(--ratio));
+    --t-3: calc(var(--t-2) / var(--ratio));
+    --t-2: calc(var(--t-1) / var(--ratio));
+    --t-1: calc(var(--t0) / var(--ratio));
+    --t0: 1000ms;
+    --t1: calc(var(--t0) * var(--ratio));
+    --t2: calc(var(--t1) * var(--ratio));
+    --t3: calc(var(--t2) * var(--ratio));
+    --t4: calc(var(--t3) * var(--ratio));
+    --t5: calc(var(--t4) * var(--ratio));
+  
+    /* Zero value*/
+    --zero: 0;
+  
+    /* Measure width (characters per line) */
+    --measure: 60ch;
+  }
