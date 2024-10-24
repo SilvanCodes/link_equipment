@@ -18,7 +18,10 @@
                     "includeLanguages": {
                         "phoenix-heex": "html"
                     }
-                }
+                },
+                "rust-analyzer.linkedProjects": [
+                    "./native/linkequipment_lychee/Cargo.toml"
+                ]
             },
             "extensions": [
                 "ms-azuretools.vscode-docker",
@@ -31,7 +34,8 @@
                 "cweijan.vscode-database-client2",
                 "humao.rest-client",
                 "GitHub.vscode-github-actions",
-                "mechatroner.rainbow-csv"
+                "mechatroner.rainbow-csv",
+                "rust-lang.rust-analyzer"
             ]
         }
     }
