@@ -18,7 +18,7 @@ defmodule LinkEquipmentWeb.HomeLive do
         socket = assign(socket, :form, to_form(%{"url_input" => url_input}))
 
         if socket.assigns.live_action == :scan do
-          assign_async(socket, :results, fn -> scan_url(uri) end)
+          assign_async(socket, :results, fn -> scan_url(URI.to_string(uri)) end)
         else
           socket
         end
@@ -70,8 +70,8 @@ defmodule LinkEquipmentWeb.HomeLive do
     """
   end
 
-  defp scan_url(uri) do
-    with {:ok, results} <- LinkEquipment.Lychee.collect_links(URI.to_string(uri)) do
+  defp scan_url(url) do
+    with {:ok, results} <- LinkEquipment.Lychee.collect_links(url) do
       {:ok, %{results: results}}
     end
   end
