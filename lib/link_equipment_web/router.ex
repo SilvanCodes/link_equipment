@@ -18,6 +18,8 @@ defmodule LinkEquipmentWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive, :default
+
+    live "/scan", HomeLive, :scan
   end
 
   # Other scopes may use custom stacks.
