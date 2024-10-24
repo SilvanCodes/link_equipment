@@ -45,3 +45,6 @@ npm-debug.log
 
 # environment variables
 *.env
+
+# language server
+.elixir_ls
