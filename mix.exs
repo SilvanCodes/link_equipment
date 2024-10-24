@@ -49,7 +49,7 @@ defmodule LinkEquipment.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:rustler, "~> 0.34.0"},
+      {:rustler, "~> 0.34"},
       {:oban, "~> 2.17"},
       {:faker, "~> 0.18", only: :test},
       # UI layouting
