@@ -1,5 +1,17 @@
 defmodule Util do
   @moduledoc false
+  alias Phoenix.LiveView.Socket
+
+  defmodule Phoenix do
+    @moduledoc false
+
+    @spec noreply(Socket.t()) :: {:noreply, Socket.t()}
+    def noreply(socket), do: {:noreply, socket}
+
+    @spec reply(Socket.t(), map()) :: {:reply, map(), Socket.t()}
+    def reply(socket, map), do: {:reply, map, socket}
+  end
+
   defmodule Result do
     @moduledoc false
 
