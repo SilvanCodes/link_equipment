@@ -51,9 +51,12 @@ defmodule LinkEquipment.MixProject do
       {:bandit, "~> 1.5"},
       {:rustler, "~> 0.34.0"},
       {:oban, "~> 2.17"},
-      {:styler, "~> 1.1.2", only: [:dev, :test], runtime: false},
       {:faker, "~> 0.18", only: :test},
-      {:phexel, git: "https://github.com/SilvanCodes/phexel"}
+      # UI layouting
+      {:phexel, git: "https://github.com/SilvanCodes/phexel"},
+      # code quality tooling
+      {:styler, "~> 1.1.2", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
