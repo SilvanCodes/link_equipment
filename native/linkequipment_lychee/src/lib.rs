@@ -19,8 +19,18 @@ impl From<Request> for Link {
             _ => panic!("only remote urls supported"),
         };
 
+        let url = match Url::parse(value.uri.as_str()) {
+            Ok(url) => url,
+            Err(url::ParseError::RelativeUrlWithoutBase) => Url::options()
+                .base_url(Some(&source))
+                .parse(value.uri.as_str())
+                .unwrap(),
+
+            Err(_) => panic!("cant parse url"),
+        };
+
         Self {
-            url: Url::parse(value.uri.as_str()).unwrap().into(),
+            url: url.into(),
             source: source.into(),
             element: value.element,
             attribute: value.attribute,
