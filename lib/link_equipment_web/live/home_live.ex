@@ -68,29 +68,31 @@ defmodule LinkEquipmentWeb.HomeLive do
           </.cluster>
         </.form>
       </.center>
-      <%= cond do %>
-        <% @results && @results.loading -> %>
-          <p>Scanning...</p>
-        <% results = @results && @results.ok? && @results.result -> %>
-          <.stack>
-            <.cluster>
-              <p>Last Results (<%= Enum.count(results) %>)</p>
-              <.button phx-click="check_all">Check all</.button>
-            </.cluster>
+      <.center>
+        <%= cond do %>
+          <% @results && @results.loading -> %>
+            <p>Scanning...</p>
+          <% results = @results && @results.ok? && @results.result -> %>
+            <.stack>
+              <.cluster>
+                <p>Last Results (<%= Enum.count(results) %>)</p>
+                <.button phx-click="check_all">Check all</.button>
+              </.cluster>
 
-            <.stack tag="ul">
-              <li :for={result <- results}>
-                <.live_component
-                  module={LinkLiveComponent}
-                  id={:base64.encode(URI.to_string(result.url))}
-                  link={result}
-                />
-              </li>
+              <.stack tag="ul">
+                <li :for={result <- results}>
+                  <.live_component
+                    module={LinkLiveComponent}
+                    id={:base64.encode(URI.to_string(result.url))}
+                    link={result}
+                  />
+                </li>
+              </.stack>
             </.stack>
-          </.stack>
-        <% true -> %>
-          <p>Try entering a URL :)</p>
-      <% end %>
+          <% true -> %>
+            <p>Try entering a URL :)</p>
+        <% end %>
+      </.center>
     </.stack>
     """
   end
