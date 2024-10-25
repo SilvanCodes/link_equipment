@@ -39,7 +39,11 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
               Scan
             </.button>
 
-            <.link href={URI.to_string(@link.url)} target="_blank">
+            <.link
+              :if={@link.url.scheme in ["http", "https"]}
+              href={URI.to_string(@link.url)}
+              target="_blank"
+            >
               <.button>Open</.button>
             </.link>
 
