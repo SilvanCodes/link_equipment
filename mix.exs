@@ -51,6 +51,9 @@ defmodule LinkEquipment.MixProject do
       {:bandit, "~> 1.5"},
       {:rustler, "~> 0.34"},
       {:oban, "~> 2.17"},
+      # cache, yo
+      {:cachex, "~> 4.0"},
+      # generate test data
       {:faker, "~> 0.18", only: :test},
       # http client
       {:req, "~> 0.5.0"},

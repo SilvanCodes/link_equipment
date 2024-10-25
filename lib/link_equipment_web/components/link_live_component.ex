@@ -2,6 +2,8 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
   @moduledoc false
   use LinkEquipmentWeb, :live_component
 
+  alias LinkEquipment.StatusManager
+
   def mount(socket) do
     socket
     |> assign(status: nil)
@@ -88,8 +90,8 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
   end
 
   defp check_status(url) do
-    with {:ok, response} <- Req.head(url) do
-      {:ok, %{status: response.status}}
+    with {:ok, status} <- StatusManager.check_status(url) do
+      {:ok, %{status: status}}
     end
   end
 
