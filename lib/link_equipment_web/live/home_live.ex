@@ -88,6 +88,8 @@ defmodule LinkEquipmentWeb.HomeLive do
               </li>
             </.stack>
           </.stack>
+        <% true -> %>
+          <p>Try entering a URL :)</p>
       <% end %>
     </.stack>
     """
