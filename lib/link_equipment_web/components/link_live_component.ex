@@ -11,6 +11,19 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
     |> ok()
   end
 
+  def update(assigns, socket) do
+    socket =
+      if assigns[:check] do
+        url = URI.to_string(socket.assigns.link.url)
+
+        assign_async(socket, :status, fn -> check_status(url) end)
+      else
+        assign(socket, assigns)
+      end
+
+    ok(socket)
+  end
+
   def handle_event("scan", params, socket) do
     socket
     |> push_patch(to: ~p"/scan?#{Map.take(params, ["url_input"])}")
@@ -18,11 +31,9 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
   end
 
   def handle_event("check", _params, socket) do
-    url = URI.to_string(socket.assigns.link.url)
+    send_update(__MODULE__, id: socket.assigns.id, check: true)
 
-    socket
-    |> assign_async(:status, fn -> check_status(url) end)
-    |> noreply()
+    noreply(socket)
   end
 
   def render(assigns) do
