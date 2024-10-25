@@ -20,6 +20,8 @@ defmodule LinkEquipmentWeb.Router do
     live "/", HomeLive, :default
 
     live "/scan", HomeLive, :scan
+
+    live "/source", SourceLive, :default
   end
 
   # Other scopes may use custom stacks.

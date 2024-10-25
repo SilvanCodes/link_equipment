@@ -51,12 +51,25 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
               <.button>Open</.button>
             </.link>
 
+            <.link href={source_url(@link)}>
+              <.button>Source</.button>
+            </.link>
+
             <.status status={@status} target={@myself} />
           </.cluster>
         </.cluster>
       </.box>
     </div>
     """
+  end
+
+  defp source_url(link) do
+    source = URI.to_string(link.source_document_url)
+    url = URI.to_string(link.url)
+
+    text_fragment = "#:~:text=\"#{url}\""
+
+    ~p"/source?#{%{source: source}}" <> text_fragment
   end
 
   defp status(assigns) do
