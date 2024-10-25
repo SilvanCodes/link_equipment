@@ -66,29 +66,30 @@ defmodule LinkEquipmentWeb.HomeLive do
         </.form>
       </.center>
       <.center>
-        <%= cond do %>
-          <% @results && @results.loading -> %>
+        <.async :let={results} :if={@results} assign={@results}>
+          <:loading>
             <p>Scanning...</p>
-          <% results = @results && @results.ok? && @results.result -> %>
-            <.stack>
-              <.cluster>
-                <p>Last Results (<%= Enum.count(results) %>)</p>
-                <.button phx-click="check_all">Check all</.button>
-              </.cluster>
+          </:loading>
+          <.stack>
+            <.cluster>
+              <p>Last Results (<%= Enum.count(results) %>)</p>
+              <.button phx-click="check_all">Check all</.button>
+            </.cluster>
 
-              <.stack tag="ul">
-                <li :for={result <- results}>
-                  <.live_component
-                    module={LinkLiveComponent}
-                    id={:base64.encode(URI.to_string(result.url))}
-                    link={result}
-                  />
-                </li>
-              </.stack>
+            <.stack tag="ul">
+              <li :for={result <- results}>
+                <.live_component
+                  module={LinkLiveComponent}
+                  id={:base64.encode(URI.to_string(result.url))}
+                  link={result}
+                />
+              </li>
             </.stack>
-          <% true -> %>
-            <p>Try entering a URL :)</p>
-        <% end %>
+          </.stack>
+          <:failed :let={_failure}>
+            <p>There was an error scanning the URL :(</p>
+          </:failed>
+        </.async>
       </.center>
     </.stack>
     """

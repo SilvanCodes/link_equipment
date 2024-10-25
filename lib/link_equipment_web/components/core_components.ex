@@ -665,4 +665,29 @@ defmodule LinkEquipmentWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  def async(%{assign: async_assign} = assigns) do
+    cond do
+      async_assign.loading && async_assign.ok? ->
+        ~H"""
+        <%= render_slot(@loading, @assign.loading) %>
+        <%= render_slot(@inner_block, @assign.result) %>
+        """
+
+      async_assign.loading ->
+        ~H"""
+        <%= render_slot(@loading, @assign.loading) %>
+        """
+
+      async_assign.ok? ->
+        ~H"""
+        <%= render_slot(@inner_block, @assign.result) %>
+        """
+
+      async_assign.failed ->
+        ~H"""
+        <%= render_slot(@failed, @assign.failed) %>
+        """
+    end
+  end
 end
