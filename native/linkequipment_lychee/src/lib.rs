@@ -7,9 +7,9 @@ use tokio_stream::StreamExt;
 #[module = "LinkEquipment.Link"]
 struct Link {
     url: Uri,
-    source: Uri,
-    element: Option<String>,
-    attribute: Option<String>,
+    source_document_url: Uri,
+    html_element: Option<String>,
+    element_attribute: Option<String>,
 }
 
 impl From<Request> for Link {
@@ -31,9 +31,9 @@ impl From<Request> for Link {
 
         Self {
             url: url.into(),
-            source: source.into(),
-            element: value.element,
-            attribute: value.attribute,
+            source_document_url: source.into(),
+            html_element: value.element,
+            element_attribute: value.attribute,
         }
     }
 }
