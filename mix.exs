@@ -52,6 +52,8 @@ defmodule LinkEquipment.MixProject do
       {:rustler, "~> 0.34"},
       {:oban, "~> 2.17"},
       {:faker, "~> 0.18", only: :test},
+      # http client
+      {:req, "~> 0.5.0"},
       # UI layouting
       {:phexel, git: "https://github.com/SilvanCodes/phexel"},
       # code quality tooling

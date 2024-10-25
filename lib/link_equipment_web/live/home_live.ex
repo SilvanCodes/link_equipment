@@ -62,9 +62,11 @@ defmodule LinkEquipmentWeb.HomeLive do
         <p>Last Results (<%= Enum.count(results) %>)</p>
         <.stack tag="ul">
           <li :for={result <- results}>
-            <.link href={~p"/scan?#{%{"url_input" => URI.to_string(result.url)}}"}>
-              <%= result.url %>
-            </.link>
+            <.live_component
+              module={LinkEquipmentWeb.LinkLiveComponent}
+              id={:base64.encode(URI.to_string(result.url))}
+              link={result}
+            />
           </li>
         </.stack>
       </.stack>
