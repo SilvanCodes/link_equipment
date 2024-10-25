@@ -60,7 +60,7 @@ defmodule LinkEquipmentWeb.HomeLive do
       <div :if={@results && @results.loading}>Scanning...</div>
       <.stack :if={results = @results && @results.ok? && @results.result}>
         <p>Last Results (<%= Enum.count(results) %>)</p>
-        <.stack>
+        <.stack tag="ul">
           <li :for={result <- results}>
             <.link href={~p"/scan?#{%{"url_input" => URI.to_string(result.url)}}"}>
               <%= result.url %>
