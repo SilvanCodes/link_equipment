@@ -49,12 +49,14 @@ defmodule LinkEquipmentWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <.stack>
-      <.form for={@form} phx-change="validate" phx-submit="scan">
-        <.cluster>
-          <.input type="text" field={@form[:url_input]} label="URL" />
-          <.button>Scan</.button>
-        </.cluster>
-      </.form>
+      <.center>
+        <.form for={@form} phx-change="validate" phx-submit="scan">
+          <.cluster>
+            <.input type="text" field={@form[:url_input]} label="URL" />
+            <.button>Scan</.button>
+          </.cluster>
+        </.form>
+      </.center>
       <div :if={@results && @results.loading}>Scanning...</div>
       <.stack :if={results = @results && @results.ok? && @results.result}>
         <p>Last Results (<%= Enum.count(results) %>)</p>
