@@ -74,7 +74,8 @@ defmodule LinkEquipmentWeb.HomeLive do
 
   defp scan_url(url) do
     with {:ok, results} <- LinkEquipment.Lychee.collect_links(url) do
-      {:ok, %{results: results}}
+      # We could group here if it turns out to be interesting when a resource is linked multiple times in different places.
+      {:ok, %{results: results |> Enum.sort() |> Enum.uniq_by(& &1.url)}}
     end
   end
 
