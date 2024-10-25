@@ -83,11 +83,18 @@ defmodule LinkEquipmentWeb do
     quote do
       # Core UI components and translation
       import LinkEquipmentWeb.CoreComponents
+
       # Layouting components
       import Phexel
 
       # HTML escaping functionality
       import Phoenix.HTML
+
+      # helpful stuff for sockets
+      import Util.Phoenix
+
+      # helpful stuff for ok/error
+      import Util.Result
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

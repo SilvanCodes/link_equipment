@@ -2,9 +2,6 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
   @moduledoc false
   use LinkEquipmentWeb, :live_component
 
-  import Util.Phoenix
-  import Util.Result
-
   def mount(socket) do
     socket
     |> assign(status: nil)

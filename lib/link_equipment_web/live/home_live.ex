@@ -2,9 +2,6 @@ defmodule LinkEquipmentWeb.HomeLive do
   @moduledoc false
   use LinkEquipmentWeb, :live_view
 
-  import Util.Phoenix
-  import Util.Result
-
   alias LinkEquipmentWeb.LinkLiveComponent
 
   def mount(_params, _session, socket) do
