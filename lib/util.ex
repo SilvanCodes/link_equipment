@@ -15,12 +15,12 @@ defmodule Util do
   defmodule Result do
     @moduledoc false
 
-    @type success :: {:ok, any()}
+    @type success(type) :: {:ok, type}
     @type failure :: {:error, any()}
 
-    @type t :: success() | failure()
+    @type t(type) :: success(type) | failure()
 
-    @spec ok(any()) :: success()
+    @spec ok(any()) :: success(any())
     def ok(value), do: {:ok, value}
 
     @spec error(any()) :: failure()
