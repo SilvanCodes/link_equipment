@@ -5,6 +5,8 @@ defmodule LinkEquipmentWeb.HomeLive do
   import Util.Phoenix
   import Util.Result
 
+  alias LinkEquipmentWeb.LinkLiveComponent
+
   def mount(_params, _session, socket) do
     socket
     |> assign(form: to_form(%{}), results: nil)
@@ -46,6 +48,15 @@ defmodule LinkEquipmentWeb.HomeLive do
     |> noreply()
   end
 
+  def handle_event("check_all", _params, socket) do
+    Enum.each(
+      socket.assigns.results.result,
+      &send_update(LinkLiveComponent, id: :base64.encode(URI.to_string(&1.url)), check: true)
+    )
+
+    noreply(socket)
+  end
+
   def render(assigns) do
     ~H"""
     <.stack>
@@ -62,11 +73,15 @@ defmodule LinkEquipmentWeb.HomeLive do
           <p>Scanning...</p>
         <% results = @results && @results.ok? && @results.result -> %>
           <.stack>
-            <p>Last Results (<%= Enum.count(results) %>)</p>
+            <.cluster>
+              <p>Last Results (<%= Enum.count(results) %>)</p>
+              <.button phx-click="check_all">Check all</.button>
+            </.cluster>
+
             <.stack tag="ul">
               <li :for={result <- results}>
                 <.live_component
-                  module={LinkEquipmentWeb.LinkLiveComponent}
+                  module={LinkLiveComponent}
                   id={:base64.encode(URI.to_string(result.url))}
                   link={result}
                 />

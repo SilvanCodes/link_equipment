@@ -13,7 +13,7 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
 
   def update(assigns, socket) do
     socket =
-      if assigns[:check] do
+      if assigns[:check] && socket.assigns.link.url.scheme in ["http", "https"] do
         url = URI.to_string(socket.assigns.link.url)
 
         assign_async(socket, :status, fn -> check_status(url) end)
@@ -42,7 +42,7 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
       <.box style={status_border_color(@status)}>
         <.cluster>
           <p><%= @link.url %></p>
-          <.cluster>
+          <.cluster :if={@link.url.scheme in ["http", "https"]}>
             <.button
               phx-click={JS.push("scan", value: %{"url_input" => URI.to_string(@link.url)})}
               phx-target={@myself}
@@ -50,11 +50,7 @@ defmodule LinkEquipmentWeb.LinkLiveComponent do
               Scan
             </.button>
 
-            <.link
-              :if={@link.url.scheme in ["http", "https"]}
-              href={URI.to_string(@link.url)}
-              target="_blank"
-            >
+            <.link href={URI.to_string(@link.url)} target="_blank">
               <.button>Open</.button>
             </.link>
 
