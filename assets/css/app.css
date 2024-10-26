@@ -4,3 +4,7 @@
 html {
     scrollbar-gutter: stable
 }
+
+pre, code {
+    max-inline-size: none;
+}

@@ -32,11 +32,13 @@ defmodule LinkEquipmentWeb.SourceLive do
       <:loading>
         <p>Getting source...</p>
       </:loading>
-      <pre>
-        <code>
+      <div id="living_source" phx-hook="LivingSource">
+        <pre>
+        <code id="basic_source">
     <%= source %>
         </code>
       </pre>
+      </div>
       <:failed :let={_failure}>
         <p>There was an error getting the source. :(</p>
       </:failed>

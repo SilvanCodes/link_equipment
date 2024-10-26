@@ -24,10 +24,74 @@ import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+import { createHighlighter } from 'shiki'
+
+// `createHighlighter` is async, it initializes the internal and
+// loads the themes and languages specified.
+(async () => {
+  const highlighter = await createHighlighter({
+    themes: ['nord'],
+    langs: ['html'],
+  });
+
+  window.highlighter = highlighter;
+})();
+
+function findAllSubstringIndexes(str, substr) {
+  const indexes = []
+  let i = -1
+  while ((i = str.indexOf(substr, i + 1)) !== -1)
+    indexes.push(i)
+  return indexes
+}
+
+const myTransformer = {
+  name: 'link-highlighter',
+  preprocess(code, options) {
+
+    const words = ["Silvan"]
+    options.decorations ||= []
+
+    for (const word of words) {
+      const indexes = findAllSubstringIndexes(code, word)
+      for (const index of indexes) {
+        options.decorations.push({
+          start: index,
+          end: index + word.length,
+          properties: {
+            style: "background: red;",
+            title: "Silvan"
+          },
+        })
+      }
+    }
+  }
+}
+
+let Hooks = {}
+
+Hooks.LivingSource = {
+  mounted() {
+    let source = document.getElementById("basic_source").textContent;
+
+    let living_source = window.highlighter.codeToHtml(source, {
+      lang: 'html',
+      theme: 'nord',
+      transformers: [
+        myTransformer
+      ]
+    })
+
+    this.el.innerHTML = living_source;
+  }
+}
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: { _csrf_token: csrfToken }
+  params: { _csrf_token: csrfToken },
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits
