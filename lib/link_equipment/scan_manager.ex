@@ -21,7 +21,7 @@ defmodule LinkEquipment.ScanManager do
   defp get_scan(url) do
     IO.puts("HIT NETWORK")
 
-    case dbg(LinkEquipment.Lychee.collect_links(url)) do
+    case LinkEquipment.Lychee.collect_links(url) do
       {:ok, results} ->
         # We could group here if it turns out to be interesting when a resource is linked multiple times in different places.
         {:commit, results |> Enum.sort() |> Enum.uniq_by(& &1.url)}
