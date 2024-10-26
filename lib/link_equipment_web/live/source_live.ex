@@ -2,6 +2,8 @@ defmodule LinkEquipmentWeb.SourceLive do
   @moduledoc false
   use LinkEquipmentWeb, :live_view
 
+  alias LinkEquipment.SourceManager
+
   def mount(_params, _session, socket) do
     socket
     |> assign(source: nil)
@@ -19,8 +21,8 @@ defmodule LinkEquipmentWeb.SourceLive do
   end
 
   defp get_source(url) do
-    with {:ok, response} <- Req.get(url) do
-      {:ok, %{source: response.body}}
+    with {:ok, source} <- SourceManager.check_source(url) do
+      {:ok, %{source: source}}
     end
   end
 

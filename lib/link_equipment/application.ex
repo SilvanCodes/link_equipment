@@ -14,7 +14,8 @@ defmodule LinkEquipment.Application do
       {Ecto.Migrator, repos: Application.fetch_env!(:link_equipment, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:link_equipment, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LinkEquipment.PubSub},
-      {Cachex, [:status_cache]},
+      Supervisor.child_spec({Cachex, [:status_cache]}, id: :status_cache),
+      Supervisor.child_spec({Cachex, [:source_cache]}, id: :source_cache),
       # Start a worker by calling: LinkEquipment.Worker.start_link(arg)
       # {LinkEquipment.Worker, arg},
       # Start to serve requests, typically the last entry
