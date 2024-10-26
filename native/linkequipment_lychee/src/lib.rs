@@ -1,4 +1,6 @@
-use lychee_lib::{Collector, Input, InputSource, Request, Result};
+use lychee_lib::{
+    extract::Extractor, Collector, FileType, Input, InputContent, InputSource, Request, Result,
+};
 use reqwest::Url;
 use rustler::NifStruct;
 use tokio_stream::StreamExt;
@@ -93,6 +95,29 @@ fn collect_links(url: String) -> std::result::Result<Vec<Link>, ()> {
         Result::Ok(links) => Ok(links.into_iter().map(Link::from).collect::<Vec<_>>()),
         Result::Err(_) => Err(()),
     }
+}
+
+#[derive(Debug, NifStruct)]
+#[module = "LinkEquipment.RawLink"]
+struct RawLink {
+    text: String,
+    element: Option<String>,
+    attribute: Option<String>,
+}
+
+#[rustler::nif]
+fn extract_links(source: String) -> Vec<RawLink> {
+    let input_content = InputContent::from_string(source.as_str(), FileType::Html);
+
+    Extractor::new(false, true)
+        .extract(&input_content)
+        .into_iter()
+        .map(|raw_uri| RawLink {
+            text: raw_uri.text,
+            element: raw_uri.element,
+            attribute: raw_uri.attribute,
+        })
+        .collect::<Vec<_>>()
 }
 
 rustler::init!("Elixir.LinkEquipment.Lychee");

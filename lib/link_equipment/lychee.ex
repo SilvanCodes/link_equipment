@@ -9,4 +9,7 @@ defmodule LinkEquipment.Lychee do
   # When your NIF is loaded, it will override this function.
   @spec collect_links(String.t()) :: Result.t(list(LinkEquipment.Link.t()))
   def collect_links(_url), do: :erlang.nif_error(:nif_not_loaded)
+
+  @spec extract_links(String.t()) :: list(LinkEquipment.RawLink.t())
+  def extract_links(_url), do: :erlang.nif_error(:nif_not_loaded)
 end
