@@ -16,6 +16,7 @@ defmodule LinkEquipment.Application do
       {Phoenix.PubSub, name: LinkEquipment.PubSub},
       Supervisor.child_spec({Cachex, [:status_cache]}, id: :status_cache),
       Supervisor.child_spec({Cachex, [:source_cache]}, id: :source_cache),
+      Supervisor.child_spec({Cachex, [:scan_cache]}, id: :scan_cache),
       # Start a worker by calling: LinkEquipment.Worker.start_link(arg)
       # {LinkEquipment.Worker, arg},
       # Start to serve requests, typically the last entry

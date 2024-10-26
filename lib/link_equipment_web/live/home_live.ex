@@ -2,6 +2,7 @@ defmodule LinkEquipmentWeb.HomeLive do
   @moduledoc false
   use LinkEquipmentWeb, :live_view
 
+  alias LinkEquipment.ScanManager
   alias LinkEquipmentWeb.LinkLiveComponent
 
   def mount(_params, _session, socket) do
@@ -96,9 +97,8 @@ defmodule LinkEquipmentWeb.HomeLive do
   end
 
   defp scan_url(url) do
-    with {:ok, results} <- LinkEquipment.Lychee.collect_links(url) do
-      # We could group here if it turns out to be interesting when a resource is linked multiple times in different places.
-      {:ok, %{results: results |> Enum.sort() |> Enum.uniq_by(& &1.url)}}
+    with {:ok, results} <- ScanManager.check_scan(url) do
+      {:ok, %{results: results}}
     end
   end
 
