@@ -17,6 +17,9 @@ RUN bash -ic "asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git 
 # install and pin rust: https://github.com/code-lever/asdf-rust
 RUN bash -ic "asdf plugin-add rust https://github.com/code-lever/asdf-rust.git && asdf plugin update rust 95acf4fe65df1de74fca502482b8f3ac5af73c05"
 
+# install and pin nodejs: https://github.com/asdf-vm/asdf-nodejs
+RUN bash -ic "asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git && asdf plugin update nodejs c36e6f065d31437786e587de50f32c85b4972188"
+
 COPY .tool-versions ${HOME}/
 
 RUN bash -ic "asdf install"
