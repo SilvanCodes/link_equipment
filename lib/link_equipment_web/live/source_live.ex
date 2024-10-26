@@ -34,7 +34,7 @@ defmodule LinkEquipmentWeb.SourceLive do
       </:loading>
       <pre>
         <code>
-        <%= source %>
+    <%= source %>
         </code>
       </pre>
       <:failed :let={_failure}>
