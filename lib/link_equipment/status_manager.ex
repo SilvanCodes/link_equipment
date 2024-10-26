@@ -22,9 +22,7 @@ defmodule LinkEquipment.StatusManager do
   We only cache status 200 codes as they should be the majority and are anticipated to be least likely to change.
   """
   defp get_status(url) do
-    IO.puts("HIT NETWORK")
-
-    case Req.head(url) do
+    case request(url) do
       {:ok, %{status: status}} ->
         if status in 200..299 do
           {:commit, status, expire: :timer.minutes(3)}
@@ -34,6 +32,12 @@ defmodule LinkEquipment.StatusManager do
 
       error ->
         {:ignore, error}
+    end
+  end
+
+  defp request(url) do
+    with {:ok, %{status: 405}} <- Req.head(url) do
+      Req.get(url)
     end
   end
 end
