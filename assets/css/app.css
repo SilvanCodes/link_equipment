@@ -5,6 +5,18 @@ html {
     scrollbar-gutter: stable
 }
 
+#living_source {
+    overflow: auto;
+    max-inline-size: 180ch;
+    max-block-size: 90vh;
+}
+
+#raw_links_list {
+    overflow: auto;
+    max-block-size: 90vh;
+}
+
 pre, code {
     max-inline-size: none;
+    inline-size: fit-content;
 }

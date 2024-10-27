@@ -87,7 +87,7 @@ defmodule LinkEquipmentWeb.SourceLive do
     ~H"""
     <.async :let={raw_links} :if={@raw_links} assign={@raw_links}>
       <:loading></:loading>
-      <.stack tag="ul">
+      <.stack tag="ul" id="raw_links_list">
         <li :for={raw_link <- raw_links}>
           <.live_component
             module={RawLinkLiveComponent}
