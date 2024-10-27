@@ -7,19 +7,45 @@ defmodule LinkEquipmentWeb.SourceLive do
 
   def mount(_params, _session, socket) do
     socket
-    |> assign(source: nil)
-    |> assign(raw_links: nil)
+    |> assign(:form, to_form(%{}))
+    |> assign(:source, nil)
+    |> assign(:raw_links, nil)
     |> ok()
   end
 
-  def handle_params(%{"source" => url} = _params, _uri, socket) do
+  def handle_params(%{"source" => url_input} = _params, _uri, socket) do
     socket =
-      with {:ok, uri} <- URI.new(url),
+      with {:ok, uri} <- URI.new(url_input),
            {:ok, uri} <- validate_as_remote_uri(uri) do
-        assign_async(socket, [:source, :raw_links], fn -> get_source(URI.to_string(uri)) end)
+        socket = assign(socket, :form, to_form(%{"source" => url_input}))
+
+        if socket.assigns.live_action == :scan do
+          assign_async(socket, [:source, :raw_links], fn -> get_source(URI.to_string(uri)) end)
+        else
+          socket
+        end
+      else
+        {:error, error} ->
+          assign(socket, :form, to_form(%{"source" => url_input}, errors: [source: {error, []}]))
       end
 
     noreply(socket)
+  end
+
+  def handle_params(_params, _uri, socket) do
+    noreply(socket)
+  end
+
+  def handle_event("validate", params, socket) do
+    socket
+    |> push_patch(to: ~p"/source?#{Map.take(params, ["source"])}", replace: true)
+    |> noreply()
+  end
+
+  def handle_event("scan", params, socket) do
+    socket
+    |> push_patch(to: ~p"/source/scan?#{params}")
+    |> noreply()
   end
 
   defp get_source(url) do
@@ -40,10 +66,20 @@ defmodule LinkEquipmentWeb.SourceLive do
 
   def render(assigns) do
     ~H"""
-    <.cluster>
-      <.living_source source={@source} />
-      <.raw_links raw_links={@raw_links} />
-    </.cluster>
+    <.stack>
+      <.center>
+        <.form for={@form} phx-change="validate" phx-submit="scan">
+          <.cluster>
+            <.input type="text" field={@form[:source]} label="URL:" />
+            <.button>Scan</.button>
+          </.cluster>
+        </.form>
+      </.center>
+      <.sidebar>
+        <.raw_links raw_links={@raw_links} />
+        <.living_source source={@source} />
+      </.sidebar>
+    </.stack>
     """
   end
 
