@@ -1,6 +1,17 @@
 @import "../../deps/phexel/assets/elc.css";
 @import "scale.css";
 
+
+/* green: #348A36 :: rgba(52, 138, 54, 1) */
+/* yellow: #E8DA1B :: rgba(232, 218, 27, 1) */
+/* red: #D74F53 :: rgba(215, 79, 83, 1) */
+
+:root {
+    --link-green: 52, 138, 54;
+    --link-yellow: 232, 218, 27;
+    --link-red: 215, 79, 83;
+}
+
 html {
     scrollbar-gutter: stable
 }

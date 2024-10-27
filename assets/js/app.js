@@ -94,9 +94,11 @@ Hooks.LivingSource = {
 const statusData = status => {
   switch (status) {
     case "200":
-      return ["green", "200 OK"];
+      return ["rgba(var(--link-green), 0.3)", "200 OK"];
+    case "403":
+      return ["rgba(var(--link-yellow), 0.2)", "403 Not Allowed"];
     case "404":
-      return ["red", "404 Not Found"];
+      return ["rgba(var(--link-red), 0.6)", "404 Not Found"];
     case "not_http_or_https":
       return ["gray", "No HTTP(S) URL"];
     default:
