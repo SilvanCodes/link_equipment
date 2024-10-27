@@ -61,6 +61,7 @@ const linkStatusTransformer = {
           end: end,
           properties: {
             id: statusElementId(rawLink),
+            tabindex: rawLink.dataset.order
             // "phx-click": "foo"
           },
         });
@@ -109,7 +110,11 @@ const statusData = status => {
 
 Hooks.LivingRawLink = {
   mounted() {
-    console.log(this.el)
+    const rawLink = this.el;
+
+    rawLink.addEventListener("click", () => {
+      document.getElementById(statusElementId(rawLink)).focus();
+    })
   },
   updated() {
     const rawLink = this.el;
