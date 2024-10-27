@@ -31,3 +31,36 @@ pre, code {
     max-inline-size: none;
     inline-size: fit-content;
 }
+
+.link-status-red {
+    background-color: rgba(var(--link-red), 0.4);
+    outline: var(--s-3) solid rgba(var(--link-red), 0);
+}
+
+.link-status-red:focus {
+    background-color: rgba(var(--link-red), 0.6);
+    outline: 1px solid rgb(var(--link-red));
+    transition: outline var(--t-4) ease-out;
+}
+
+.link-status-yellow {
+    background-color: rgba(var(--link-yellow), 0.2);
+    outline: var(--s-3) solid rgba(var(--link-yellow), 0);
+}
+
+.link-status-yellow:focus {
+    background-color: rgba(var(--link-yellow), 0.4);
+    outline: 1px solid rgb(var(--link-yellow));
+    transition: outline var(--t-4) ease-in;
+}
+
+.link-status-green {
+    background-color: rgba(var(--link-green), 0.1);
+    outline: var(--s-3) solid rgba(var(--link-green), 0);
+}
+
+.link-status-green:focus {
+    background-color: rgba(var(--link-green), 0.4);
+    outline: 1px solid rgb(var(--link-green));
+    transition: outline var(--t-4) ease-in;
+}

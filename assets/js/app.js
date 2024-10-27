@@ -61,7 +61,7 @@ const linkStatusTransformer = {
           end: end,
           properties: {
             id: statusElementId(rawLink),
-            tabindex: rawLink.dataset.order
+            tabindex: rawLink.dataset.order,
             // "phx-click": "foo"
           },
         });
@@ -95,11 +95,11 @@ Hooks.LivingSource = {
 const statusData = status => {
   switch (status) {
     case "200":
-      return ["rgba(var(--link-green), 0.2)", "200 OK"];
+      return ["link-status-green", "200 OK"];
     case "403":
-      return ["rgba(var(--link-yellow), 0.4)", "403 Not Allowed"];
+      return ["link-status-yellow", "403 Not Allowed"];
     case "404":
-      return ["rgba(var(--link-red), 0.6)", "404 Not Found"];
+      return ["link-status-red", "404 Not Found"];
     case "not_http_or_https":
       return ["gray", "No HTTP(S) URL"];
     default:
@@ -113,7 +113,7 @@ Hooks.LivingRawLink = {
     const rawLink = this.el;
 
     rawLink.addEventListener("click", () => {
-      document.getElementById(statusElementId(rawLink)).focus();
+      document.getElementById(statusElementId(rawLink)).focus({ focusVisible: true });
     })
   },
   updated() {
@@ -121,9 +121,9 @@ Hooks.LivingRawLink = {
     const status = rawLink.dataset.status;
     const statusElement = document.getElementById(statusElementId(rawLink));
 
-    const [color, title] = statusData(status);
+    const [cssClass, title] = statusData(status);
 
-    statusElement.style["backgroundColor"] = color;
+    statusElement.classList.add(cssClass);
     statusElement.title = title
   }
 }
