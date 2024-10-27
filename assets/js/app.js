@@ -37,32 +37,37 @@ import { createHighlighter } from 'shiki'
   window.highlighter = highlighter;
 })();
 
-function findAllSubstringIndexes(str, substr) {
-  const indexes = []
-  let i = -1
-  while ((i = str.indexOf(substr, i + 1)) !== -1)
-    indexes.push(i)
-  return indexes
-}
 
-const myTransformer = {
+const statusElementId = rawLink => `${btoa(rawLink.dataset.text)}-${rawLink.dataset.order}-status`
+
+const linkStatusTransformer = {
   name: 'link-highlighter',
   preprocess(code, options) {
-
-    const words = ["Silvan"]
+    const rawLinks = Array.from(document.querySelectorAll('[raw_link]')).sort((a, b) => a.dataset.order - b.dataset.order)
     options.decorations ||= []
 
-    for (const word of words) {
-      const indexes = findAllSubstringIndexes(code, word)
-      for (const index of indexes) {
+    let offset = 0;
+
+    for (const rawLink of rawLinks) {
+      const text = rawLink.dataset.text;
+
+      const index = code.indexOf(text, offset);
+
+      if (index !== -1) {
+        const end = index + text.length;
+
         options.decorations.push({
           start: index,
-          end: index + word.length,
+          end: end,
           properties: {
-            style: "background: red;",
-            title: "Silvan"
+            id: statusElementId(rawLink),
+            // "phx-click": "foo"
           },
-        })
+        });
+
+        offset = (end + 1)
+      } else {
+        console.error("failed to find text:", text)
       }
     }
   }
@@ -78,11 +83,41 @@ Hooks.LivingSource = {
       lang: 'html',
       theme: 'nord',
       transformers: [
-        myTransformer
+        linkStatusTransformer
       ]
     })
 
     this.el.innerHTML = living_source;
+  }
+}
+
+const statusData = status => {
+  switch (status) {
+    case "200":
+      return ["green", "200 OK"];
+    case "404":
+      return ["red", "404 Not Found"];
+    case "not_http_or_https":
+      return ["gray", "No HTTP(S) URL"];
+    default:
+      console.error("unmatched status:", status)
+      ["blue", "status not resolved"]
+  }
+}
+
+Hooks.LivingRawLink = {
+  mounted() {
+    console.log(this.el)
+  },
+  updated() {
+    const rawLink = this.el;
+    const status = rawLink.dataset.status;
+    const statusElement = document.getElementById(statusElementId(rawLink));
+
+    const [color, title] = statusData(status);
+
+    statusElement.style["backgroundColor"] = color;
+    statusElement.title = title
   }
 }
 

@@ -3,10 +3,12 @@ defmodule LinkEquipmentWeb.SourceLive do
   use LinkEquipmentWeb, :live_view
 
   alias LinkEquipment.SourceManager
+  alias LinkEquipmentWeb.RawLinkLiveComponent
 
   def mount(_params, _session, socket) do
     socket
     |> assign(source: nil)
+    |> assign(raw_links: nil)
     |> ok()
   end
 
@@ -14,7 +16,7 @@ defmodule LinkEquipmentWeb.SourceLive do
     socket =
       with {:ok, uri} <- URI.new(url),
            {:ok, uri} <- validate_as_remote_uri(uri) do
-        assign_async(socket, :source, fn -> get_source(URI.to_string(uri)) end)
+        assign_async(socket, [:source, :raw_links], fn -> get_source(URI.to_string(uri)) end)
       end
 
     noreply(socket)
@@ -22,11 +24,47 @@ defmodule LinkEquipmentWeb.SourceLive do
 
   defp get_source(url) do
     with {:ok, source} <- SourceManager.check_source(url) do
-      {:ok, %{source: source}}
+      base =
+        url
+        |> URI.parse()
+        |> Map.put(:path, nil)
+        |> Map.put(:query, nil)
+        |> Map.put(:fragment, nil)
+        |> URI.to_string()
+
+      raw_links = source |> LinkEquipment.Lychee.extract_links() |> Enum.map(&Map.put(&1, :base, base))
+
+      {:ok, %{source: source, raw_links: raw_links}}
     end
   end
 
   def render(assigns) do
+    ~H"""
+    <.cluster>
+      <.living_source source={@source} />
+      <.raw_links raw_links={@raw_links} />
+    </.cluster>
+    """
+  end
+
+  defp raw_links(assigns) do
+    ~H"""
+    <.async :let={raw_links} :if={@raw_links} assign={@raw_links}>
+      <:loading></:loading>
+      <.stack tag="ul">
+        <li :for={raw_link <- raw_links}>
+          <.live_component
+            module={RawLinkLiveComponent}
+            raw_link={raw_link}
+            id={"#{:base64.encode(raw_link.text)}-#{raw_link.order}"}
+          />
+        </li>
+      </.stack>
+    </.async>
+    """
+  end
+
+  defp living_source(assigns) do
     ~H"""
     <.async :let={source} :if={@source} assign={@source}>
       <:loading>
