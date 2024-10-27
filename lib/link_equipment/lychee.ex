@@ -11,5 +11,5 @@ defmodule LinkEquipment.Lychee do
   def collect_links(_url), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec extract_links(String.t()) :: list(LinkEquipment.RawLink.t())
-  def extract_links(_url), do: :erlang.nif_error(:nif_not_loaded)
+  def extract_links(_source), do: :erlang.nif_error(:nif_not_loaded)
 end

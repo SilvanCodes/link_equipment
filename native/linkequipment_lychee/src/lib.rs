@@ -103,6 +103,7 @@ struct RawLink {
     text: String,
     element: Option<String>,
     attribute: Option<String>,
+    order: usize,
 }
 
 #[rustler::nif]
@@ -112,10 +113,12 @@ fn extract_links(source: String) -> Vec<RawLink> {
     Extractor::new(false, true)
         .extract(&input_content)
         .into_iter()
-        .map(|raw_uri| RawLink {
+        .enumerate()
+        .map(|(index, raw_uri)| RawLink {
             text: raw_uri.text,
             element: raw_uri.element,
             attribute: raw_uri.attribute,
+            order: index,
         })
         .collect::<Vec<_>>()
 }
