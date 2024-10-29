@@ -3,6 +3,10 @@ defmodule LinkEquipment.Repo do
     otp_app: :link_equipment,
     adapter: Ecto.Adapters.SQLite3
 
+  def meta do
+    query("select * from sqlite_master")
+  end
+
   defmodule EctoURI do
     @moduledoc false
     use Ecto.Type
