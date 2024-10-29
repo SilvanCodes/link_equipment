@@ -83,6 +83,9 @@ defmodule LinkEquipmentWeb.SourceLive do
     """
   end
 
+  # NEXT: make this Flop table via inmemory SQlite db for nice querying and sorting
+  # maybe introduce separate in-memory repo for this
+  # will be awesome !!!
   defp raw_links(assigns) do
     ~H"""
     <.async :let={raw_links} :if={@raw_links} assign={@raw_links}>
@@ -125,4 +128,47 @@ defmodule LinkEquipmentWeb.SourceLive do
   defp validate_as_remote_uri(%URI{host: nil}), do: {:error, :host_missing}
   defp validate_as_remote_uri(%URI{host: ""}), do: {:error, :host_missing}
   defp validate_as_remote_uri(%URI{} = uri), do: {:ok, uri}
+
+  defp setup_inmemory_table(opts) do
+    table_name = Keyword.get(opts, :table_name)
+
+    """
+    CREATE TEMPORARY TABLE #{table_name}(
+      "text" TEXT PRIMARY KEY,
+      "order" INTEGER NOT NULL,
+      "element" TEXT,
+      "attribute" TEXT,
+      "base" TEXT
+    );
+    """
+  end
+
+  def get_temp_table_connection(opts) do
+    {:ok, repo} =
+      LinkEquipment.Repo.start_link(
+        name: nil,
+        temp_store: :memory,
+        pool_size: 1
+      )
+
+    # This call is per process, i.e. scoped to the live view.
+    LinkEquipment.Repo.put_dynamic_repo(repo)
+
+    table_name = Keyword.get(opts, :table_name)
+
+    sql = """
+    CREATE TEMPORARY TABLE #{table_name}(
+      "text" TEXT PRIMARY KEY,
+      "order" INTEGER NOT NULL,
+      "element" TEXT,
+      "attribute" TEXT,
+      "base" TEXT
+    );
+    """
+
+    LinkEquipment.Repo.query(sql)
+
+    # do this somewhere in cleanup hook
+    # Supervisor.stop(repo)
+  end
 end
