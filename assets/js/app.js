@@ -40,10 +40,12 @@ import { createHighlighter } from 'shiki'
 
 const statusElementId = rawLink => `${btoa(rawLink.dataset.text)}-${rawLink.dataset.order}-status`
 
+const collectRawLinks = () => Array.from(document.querySelectorAll('[phx-hook="LivingRawLink"]')).sort((a, b) => a.dataset.order - b.dataset.order);
+
 const linkStatusTransformer = {
   name: 'link-highlighter',
   preprocess(code, options) {
-    const rawLinks = Array.from(document.querySelectorAll('[raw_link]')).sort((a, b) => a.dataset.order - b.dataset.order)
+    const rawLinks = collectRawLinks();
     options.decorations ||= []
 
     let offset = 0;
