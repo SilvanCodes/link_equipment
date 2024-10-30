@@ -10,15 +10,27 @@ defmodule LinkEquipment.RawLink do
           element: String.t() | nil,
           attribute: String.t() | nil,
           order: integer(),
-          base: String.t() | nil
+          base: String.t() | nil,
+          status: integer() | nil
         }
+
+  @derive {
+    Flop.Schema,
+    filterable: [:text, :status], sortable: [:text, :status]
+  }
+
+  @primary_key {:order, :integer, autogenerate: false}
 
   schema "raw_links" do
     field :text, :string
     field :element, :string
     field :attribute, :string
-    field :order, :integer
     field :base, :string
+    field :status, :integer
+  end
+
+  def list_raw_links(params) do
+    Flop.validate_and_run(__MODULE__, params, for: __MODULE__)
   end
 
   def create_temporary_table do
@@ -28,7 +40,8 @@ defmodule LinkEquipment.RawLink do
       "element" TEXT,
       "attribute" TEXT,
       "order" INTEGER PRIMARY KEY,
-      "base" TEXT
+      "base" TEXT,
+      "status" INTEGER
     );
     """
 

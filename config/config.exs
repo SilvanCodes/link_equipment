@@ -16,6 +16,8 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
+config :flop, repo: LinkEquipment.Repo
+
 # Configures the endpoint
 config :link_equipment, LinkEquipmentWeb.Endpoint,
   url: [host: "localhost"],

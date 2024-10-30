@@ -5,28 +5,35 @@ defmodule LinkEquipmentWeb.SourceLive do
   alias LinkEquipment.RawLink
   alias LinkEquipment.SourceManager
   alias LinkEquipmentWeb.RawLinkLiveComponent
+  alias Phoenix.LiveView.AsyncResult
 
   def mount(_params, _session, socket) do
-    if connected?(socket) do
-      LinkEquipment.Repo.use_private_connection_repo()
-      LinkEquipment.RawLink.create_temporary_table()
-    end
+    socket =
+      if is_nil(socket.assigns[:repo]) do
+        repo = LinkEquipment.Repo.use_private_connection_repo()
+        LinkEquipment.RawLink.create_temporary_table()
+        assign(socket, :repo, repo)
+      else
+        socket
+      end
 
     socket
     |> assign(:form, to_form(%{}))
     |> assign(:source, nil)
-    |> assign(:raw_links, nil)
+    |> assign(:raw_links, [])
     |> ok()
   end
 
-  def handle_params(%{"source" => url_input} = _params, _uri, socket) do
+  def handle_params(%{"source" => url_input} = params, _uri, socket) do
     socket =
       with {:ok, uri} <- URI.new(url_input),
            {:ok, uri} <- validate_as_remote_uri(uri) do
         socket = assign(socket, :form, to_form(%{"source" => url_input}))
 
         if socket.assigns.live_action == :scan do
-          assign_async(socket, [:source, :raw_links], fn -> get_source(URI.to_string(uri)) end)
+          socket
+          |> assign(:source, AsyncResult.loading())
+          |> start_async(:get_source, fn -> get_source(URI.to_string(uri)) end)
         else
           socket
         end
@@ -35,11 +42,45 @@ defmodule LinkEquipmentWeb.SourceLive do
           assign(socket, :form, to_form(%{"source" => url_input}, errors: [source: {error, []}]))
       end
 
+    socket = update_raw_links_list(socket, params)
+
     noreply(socket)
   end
 
   def handle_params(_params, _uri, socket) do
     noreply(socket)
+  end
+
+  defp update_raw_links_list(socket, params) do
+    case RawLink.list_raw_links(params) do
+      {:ok, {raw_links, meta}} ->
+        assign(socket, %{raw_links_list: raw_links, meta: meta})
+
+      {:error, _meta} ->
+        socket
+    end
+  end
+
+  def handle_async(:get_source, {:ok, {source, url}}, socket) do
+    base =
+      url
+      |> URI.parse()
+      |> Map.put(:path, nil)
+      |> Map.put(:query, nil)
+      |> Map.put(:fragment, nil)
+      |> URI.to_string()
+
+    # could be done async
+    raw_links = source |> LinkEquipment.Lychee.extract_links() |> Enum.map(&Map.put(&1, :base, base))
+    LinkEquipment.Repo.insert_all(RawLink, Enum.map(raw_links, &Map.from_struct/1))
+
+    socket = update_raw_links_list(socket, %{})
+
+    {:noreply, assign(socket, :source, AsyncResult.ok(socket.assigns.source, source))}
+  end
+
+  def handle_async(:get_source, {:exit, reason}, socket) do
+    {:noreply, assign(socket, :org, AsyncResult.failed(socket.assigns.source, {:exit, reason}))}
   end
 
   def handle_event("validate", params, socket) do
@@ -56,25 +97,11 @@ defmodule LinkEquipmentWeb.SourceLive do
 
   defp get_source(url) do
     with {:ok, source} <- SourceManager.check_source(url) do
-      base =
-        url
-        |> URI.parse()
-        |> Map.put(:path, nil)
-        |> Map.put(:query, nil)
-        |> Map.put(:fragment, nil)
-        |> URI.to_string()
-
-      raw_links = source |> LinkEquipment.Lychee.extract_links() |> Enum.map(&Map.put(&1, :base, base))
-
-      {:ok, %{source: source, raw_links: raw_links}}
+      {source, url}
     end
   end
 
   def render(assigns) do
-    if assigns.raw_links && assigns.raw_links.ok? do
-      LinkEquipment.Repo.insert_all(RawLink, Enum.map(assigns.raw_links.result, &Map.from_struct/1))
-    end
-
     ~H"""
     <.stack>
       <.center>
@@ -93,23 +120,17 @@ defmodule LinkEquipmentWeb.SourceLive do
     """
   end
 
-  # NEXT: make this Flop table via inmemory SQlite db for nice querying and sorting
-  # maybe introduce separate in-memory repo for this
-  # will be awesome !!!
   defp raw_links(assigns) do
     ~H"""
-    <.async :let={raw_links} :if={@raw_links} assign={@raw_links}>
-      <:loading></:loading>
-      <.stack tag="ul" id="raw_links_list">
-        <li :for={raw_link <- raw_links}>
-          <.live_component
-            module={RawLinkLiveComponent}
-            raw_link={raw_link}
-            id={"#{:base64.encode(raw_link.text)}-#{raw_link.order}"}
-          />
-        </li>
-      </.stack>
-    </.async>
+    <.stack tag="ul" id="raw_links_list">
+      <li :for={raw_link <- @raw_links}>
+        <.live_component
+          module={RawLinkLiveComponent}
+          raw_link={raw_link}
+          id={"#{:base64.encode(raw_link.text)}-#{raw_link.order}"}
+        />
+      </li>
+    </.stack>
     """
   end
 

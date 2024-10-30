@@ -50,6 +50,10 @@ defmodule LinkEquipment.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:rustler, "~> 0.34"},
+      # query based tables
+      {:flop, "~> 0.26.1"},
+      {:flop_phoenix, "~> 0.23.1"},
+      # persistent job processing
       {:oban, "~> 2.17"},
       # cache, yo
       {:cachex, "~> 4.0"},
