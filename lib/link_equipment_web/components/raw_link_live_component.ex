@@ -2,8 +2,10 @@ defmodule LinkEquipmentWeb.RawLinkLiveComponent do
   @moduledoc false
   use LinkEquipmentWeb, :live_component
 
+  alias Ecto.Changeset
   alias LinkEquipment.RawLink
   alias LinkEquipment.StatusManager
+  alias Phoenix.LiveView.AsyncResult
 
   def mount(socket) do
     socket
@@ -15,9 +17,22 @@ defmodule LinkEquipmentWeb.RawLinkLiveComponent do
     raw_link = assigns[:raw_link] || socket.assigns[:raw_link]
 
     socket
-    |> assign_async(:status, fn -> check_status(raw_link) end)
+    |> assign(:status, AsyncResult.loading())
+    |> start_async(:check_status, fn -> check_status(raw_link) end)
     |> assign(assigns)
     |> ok()
+  end
+
+  def handle_async(:check_status, {:ok, status}, socket) do
+    LinkEquipment.Repo.update(Changeset.change(socket.assigns.raw_link, %{status: to_string(status)}))
+
+    send(self(), {:raw_link_status_updated, nil})
+
+    {:noreply, assign(socket, :status, AsyncResult.ok(socket.assigns.status, status))}
+  end
+
+  def handle_async(:check_status, {:exit, reason}, socket) do
+    {:noreply, assign(socket, :status, AsyncResult.failed(socket.assigns.status, {:exit, reason}))}
   end
 
   def render(assigns) do
@@ -43,10 +58,10 @@ defmodule LinkEquipmentWeb.RawLinkLiveComponent do
   defp check_status(raw_link) do
     if RawLink.http_or_https_url?(raw_link) do
       with {:ok, status} <- StatusManager.check_status(RawLink.unvalidated_url(raw_link)) do
-        {:ok, %{status: status}}
+        status
       end
     else
-      {:ok, %{status: :not_http_or_https}}
+      :not_http_or_https
     end
   end
 end
