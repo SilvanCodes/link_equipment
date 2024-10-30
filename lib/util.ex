@@ -30,19 +30,19 @@ defmodule Util do
   defmodule Option do
     @moduledoc false
 
-    @type _some :: [any()]
+    @type _some(type) :: [type]
     @type _none :: []
 
-    @type t :: _some() | _none()
+    @type t(type) :: _some(type) | _none()
 
-    @spec wrap(any()) :: Option.t()
+    @spec wrap(any()) :: Option.t(any())
     def wrap(value), do: List.wrap(value)
 
-    @spec unwrap(Option.t()) :: any()
+    @spec unwrap(Option.t(any())) :: any()
     def unwrap([value]), do: value
     def unwrap([]), do: nil
 
-    @spec map(Option.t(), function()) :: Option.t()
+    @spec map(Option.t(any()), function()) :: Option.t(any())
     def map(option, fun), do: Enum.map(option, fun)
   end
 end
