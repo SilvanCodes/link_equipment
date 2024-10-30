@@ -76,6 +76,22 @@ const linkStatusTransformer = {
   }
 }
 
+const statusData = status => {
+  switch (status) {
+    case "200":
+      return ["link-status-green", "200 OK"];
+    case "403":
+      return ["link-status-yellow", "403 Not Allowed"];
+    case "404":
+      return ["link-status-red", "404 Not Found"];
+    case "not_http_or_https":
+      return ["gray", "No HTTP(S) URL"];
+    default:
+      console.error("unmatched status:", status)
+      ["blue", "status not resolved"]
+  }
+}
+
 let Hooks = {}
 
 Hooks.LivingSource = {
@@ -94,22 +110,6 @@ Hooks.LivingSource = {
   }
 }
 
-const statusData = status => {
-  switch (status) {
-    case "200":
-      return ["link-status-green", "200 OK"];
-    case "403":
-      return ["link-status-yellow", "403 Not Allowed"];
-    case "404":
-      return ["link-status-red", "404 Not Found"];
-    case "not_http_or_https":
-      return ["gray", "No HTTP(S) URL"];
-    default:
-      console.error("unmatched status:", status)
-      ["blue", "status not resolved"]
-  }
-}
-
 Hooks.LivingRawLink = {
   mounted() {
     const rawLink = this.el;
@@ -125,6 +125,7 @@ Hooks.LivingRawLink = {
 
     const [cssClass, title] = statusData(status);
 
+    // should eventually remove "old" status classes
     statusElement.classList.add(cssClass);
     statusElement.title = title
   }
