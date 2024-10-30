@@ -3,20 +3,22 @@ defmodule LinkEquipment.RawLink do
 
   use Ecto.Schema
 
+  alias Util.Option
+
   @timestamps_opts [type: :utc_datetime]
 
   @type t :: %__MODULE__{
           text: String.t(),
-          element: String.t() | nil,
-          attribute: String.t() | nil,
+          element: Option.t(String.t()),
+          attribute: Option.t(String.t()),
           order: integer(),
-          base: String.t() | nil,
-          status: integer() | nil
+          base: Option.t(String.t()),
+          status: Option.t(String.t())
         }
 
   @derive {
     Flop.Schema,
-    filterable: [:text, :status], sortable: [:text, :status]
+    filterable: [:text, :status], sortable: [:text, :status], default_limit: 9999
   }
 
   @primary_key {:order, :integer, autogenerate: false}
@@ -26,7 +28,7 @@ defmodule LinkEquipment.RawLink do
     field :element, :string
     field :attribute, :string
     field :base, :string
-    field :status, :integer
+    field :status, :string
   end
 
   def list_raw_links(params) do
@@ -41,7 +43,7 @@ defmodule LinkEquipment.RawLink do
       "attribute" TEXT,
       "order" INTEGER PRIMARY KEY,
       "base" TEXT,
-      "status" INTEGER
+      "status" TEXT
     );
     """
 
