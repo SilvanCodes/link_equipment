@@ -1,15 +1,54 @@
 defmodule Util do
   @moduledoc false
+  alias Phoenix.Component
   alias Phoenix.LiveView.Socket
 
   defmodule Phoenix do
     @moduledoc false
+    import Component, only: [assign: 3, to_form: 1, update: 3]
+
+    alias Util.Result
+
+    @type params :: %{String.t() => any()}
 
     @spec noreply(Socket.t()) :: {:noreply, Socket.t()}
     def noreply(socket), do: {:noreply, socket}
 
     @spec reply(Socket.t(), map()) :: {:reply, map(), Socket.t()}
     def reply(socket, map), do: {:reply, map, socket}
+
+    @spec assign_params(Socket.t(), params()) :: Socket.t()
+    def assign_params(socket, params) do
+      assign(socket, :params, to_form(params))
+    end
+
+    @spec get_param(Socket.t(), atom()) :: Result.t(any())
+    def get_param(socket, key) do
+      case socket.assigns[:params][key].value do
+        nil ->
+          {:error, :unset}
+
+        value ->
+          {:ok, value}
+      end
+    end
+
+    @spec merged_params(params(), Socket.t()) :: params()
+    def merged_params(params, socket) do
+      Map.merge(socket.assigns.params.params, params)
+    end
+
+    @spec add_param_error(Socket.t(), atom(), any()) :: Socket.t()
+    def add_param_error(socket, key, error) do
+      update(socket, :params, fn state ->
+        Map.update(
+          state,
+          :errors,
+          [{key, {error, []}}],
+          &Keyword.put(&1, key, {error, []})
+        )
+      end)
+    end
   end
 
   defmodule Result do

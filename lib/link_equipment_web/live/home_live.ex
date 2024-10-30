@@ -6,37 +6,37 @@ defmodule LinkEquipmentWeb.HomeLive do
   alias LinkEquipmentWeb.LinkLiveComponent
 
   def mount(_params, _session, socket) do
-    socket
-    |> assign(form: to_form(%{}), results: nil)
-    |> ok()
+    ok(socket)
   end
 
-  def handle_params(%{"url_input" => url_input} = _params, _uri, socket) do
-    socket =
-      with {:ok, uri} <- URI.new(url_input),
-           {:ok, uri} <- validate_as_remote_uri(uri) do
-        socket = assign(socket, :form, to_form(%{"url_input" => url_input}))
+  def handle_params(params, _uri, socket) do
+    socket = assign_params(socket, params)
 
-        if socket.assigns.live_action == :scan do
-          assign_async(socket, :results, fn -> scan_url(URI.to_string(uri)) end)
-        else
-          socket
-        end
+    socket = assign_results(socket)
+
+    noreply(socket)
+  end
+
+  def assign_results(socket) do
+    with {:ok, value} <- get_param(socket, :url_input),
+         {:ok, uri} <- URI.new(value),
+         {:ok, uri} <- validate_as_remote_uri(uri) do
+      if socket.assigns.live_action == :scan do
+        assign_async(socket, :results, fn -> scan_url(URI.to_string(uri)) end)
       else
-        {:error, error} ->
-          assign(socket, :form, to_form(%{"url_input" => url_input}, errors: [url_input: {error, []}]))
+        assign(socket, :results, nil)
       end
-
-    noreply(socket)
-  end
-
-  def handle_params(_params, _uri, socket) do
-    noreply(socket)
+    else
+      {:error, error} ->
+        socket |> assign(:results, nil) |> add_param_error(:url_input, error)
+    end
   end
 
   def handle_event("validate", params, socket) do
+    params = merged_params(params, socket)
+
     socket
-    |> push_patch(to: ~p"/?#{Map.take(params, ["url_input"])}", replace: true)
+    |> push_patch(to: ~p"/?#{params}", replace: true)
     |> noreply()
   end
 
@@ -59,9 +59,9 @@ defmodule LinkEquipmentWeb.HomeLive do
     ~H"""
     <.stack>
       <.center>
-        <.form for={@form} phx-change="validate" phx-submit="scan">
+        <.form for={@params} phx-change="validate" phx-submit="scan">
           <.cluster>
-            <.input type="text" field={@form[:url_input]} label="URL:" />
+            <.input type="text" field={@params[:url_input]} label="URL:" />
             <.button>Scan</.button>
           </.cluster>
         </.form>
