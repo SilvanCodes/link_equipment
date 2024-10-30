@@ -13,12 +13,26 @@ defmodule LinkEquipment.RawLink do
           base: String.t() | nil
         }
 
-  embedded_schema do
+  schema "raw_links" do
     field :text, :string
     field :element, :string
     field :attribute, :string
     field :order, :integer
     field :base, :string
+  end
+
+  def create_temporary_table do
+    sql = """
+    CREATE TEMPORARY TABLE raw_links(
+      "text" TEXT,
+      "element" TEXT,
+      "attribute" TEXT,
+      "order" INTEGER PRIMARY KEY,
+      "base" TEXT
+    );
+    """
+
+    LinkEquipment.Repo.query(sql)
   end
 
   @spec unvalidated_url(LinkEquipment.RawLink.t()) :: binary()

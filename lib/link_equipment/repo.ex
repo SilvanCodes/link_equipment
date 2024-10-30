@@ -7,6 +7,23 @@ defmodule LinkEquipment.Repo do
     query("select * from sqlite_master")
   end
 
+  @spec use_private_connection_repo() :: pid()
+  def use_private_connection_repo do
+    {:ok, repo} =
+      start_link(
+        name: nil,
+        temp_store: :memory,
+        pool_size: 1
+      )
+
+    # This call is per process, i.e. scoped to the live view.
+    put_dynamic_repo(repo)
+
+    # do this somewhere in cleanup hook
+    # Supervisor.stop(repo)
+    repo
+  end
+
   defmodule EctoURI do
     @moduledoc false
     use Ecto.Type
