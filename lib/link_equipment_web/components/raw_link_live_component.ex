@@ -36,10 +36,10 @@ defmodule LinkEquipmentWeb.RawLinkLiveComponent do
   end
 
   def render(assigns) do
-    data_attributes = data_attributes(assigns)
+    assigns = assign(assigns, :data_attributes, data_attributes(assigns))
 
     ~H"""
-    <div id={@id} phx-hook="LivingRawLink" {data_attributes}>
+    <div id={@id} phx-hook="LivingRawLink" {@data_attributes}>
       <%= @raw_link.text %>
     </div>
     """
