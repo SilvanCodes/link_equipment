@@ -2,10 +2,16 @@ defmodule LinkEquipmentWeb.SourceLive do
   @moduledoc false
   use LinkEquipmentWeb, :live_view
 
+  alias LinkEquipment.RawLink
   alias LinkEquipment.SourceManager
   alias LinkEquipmentWeb.RawLinkLiveComponent
 
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      LinkEquipment.Repo.use_private_connection_repo()
+      LinkEquipment.RawLink.create_temporary_table()
+    end
+
     socket
     |> assign(:form, to_form(%{}))
     |> assign(:source, nil)
@@ -65,6 +71,10 @@ defmodule LinkEquipmentWeb.SourceLive do
   end
 
   def render(assigns) do
+    if assigns.raw_links && assigns.raw_links.ok? do
+      LinkEquipment.Repo.insert_all(RawLink, Enum.map(assigns.raw_links.result, &Map.from_struct/1))
+    end
+
     ~H"""
     <.stack>
       <.center>
