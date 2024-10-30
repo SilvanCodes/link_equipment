@@ -96,6 +96,9 @@ let Hooks = {}
 
 Hooks.LivingSource = {
   mounted() {
+    this.updated();
+  },
+  updated() {
     let source = document.getElementById("basic_source").textContent;
 
     let living_source = window.highlighter.codeToHtml(source, {
@@ -123,11 +126,13 @@ Hooks.LivingRawLink = {
     const status = rawLink.dataset.status;
     const statusElement = document.getElementById(statusElementId(rawLink));
 
-    const [cssClass, title] = statusData(status);
+    if (statusElement) {
+      const [cssClass, title] = statusData(status);
 
-    // should eventually remove "old" status classes
-    statusElement.classList.add(cssClass);
-    statusElement.title = title
+      // should eventually remove "old" status classes
+      statusElement.classList.add(cssClass);
+      statusElement.title = title
+    }
   }
 }
 
