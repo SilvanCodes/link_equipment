@@ -20,7 +20,7 @@ defmodule LinkEquipmentWeb.SourceLive do
     socket
     |> assign(:form, to_form(%{}))
     |> assign(:source, nil)
-    |> assign(:raw_links, [])
+    |> assign(:raw_links, nil)
     |> ok()
   end
 
@@ -28,21 +28,22 @@ defmodule LinkEquipmentWeb.SourceLive do
     socket =
       with {:ok, uri} <- URI.new(url_input),
            {:ok, uri} <- validate_as_remote_uri(uri) do
-        socket = assign(socket, :form, to_form(%{"source" => url_input}))
+        socket =
+          if should_scan?(params, socket) do
+            socket
+            |> assign(:source, AsyncResult.loading())
+            |> start_async(:get_source, fn -> get_source(URI.to_string(uri)) end)
+          else
+            socket
+          end
 
-        if socket.assigns.live_action == :scan do
-          socket
-          |> assign(:source, AsyncResult.loading())
-          |> start_async(:get_source, fn -> get_source(URI.to_string(uri)) end)
-        else
-          socket
-        end
+        assign(socket, :form, to_form(params))
       else
         {:error, error} ->
-          assign(socket, :form, to_form(%{"source" => url_input}, errors: [source: {error, []}]))
+          assign(socket, :form, to_form(params, errors: [source: {error, []}]))
       end
 
-    socket = update_raw_links_list(socket, params)
+    socket = update_raw_links_list(socket)
 
     noreply(socket)
   end
@@ -51,10 +52,21 @@ defmodule LinkEquipmentWeb.SourceLive do
     noreply(socket)
   end
 
-  defp update_raw_links_list(socket, params) do
-    case RawLink.list_raw_links(params) do
+  def handle_info({:raw_link_status_updated, nil}, socket) do
+    socket = update_raw_links_list(socket)
+    noreply(socket)
+  end
+
+  defp should_scan?(params, socket) do
+    socket.assigns.live_action == :scan &&
+      (not (Map.take(socket.assigns.form.params, ["source"]) == Map.take(params, ["source"])) ||
+         is_nil(socket.assigns.source))
+  end
+
+  defp update_raw_links_list(socket) do
+    case RawLink.list_raw_links(socket.assigns.form.params) do
       {:ok, {raw_links, meta}} ->
-        assign(socket, %{raw_links_list: raw_links, meta: meta})
+        assign(socket, %{raw_links: raw_links, meta: meta})
 
       {:error, _meta} ->
         socket
@@ -72,15 +84,15 @@ defmodule LinkEquipmentWeb.SourceLive do
 
     # could be done async
     raw_links = source |> LinkEquipment.Lychee.extract_links() |> Enum.map(&Map.put(&1, :base, base))
-    LinkEquipment.Repo.insert_all(RawLink, Enum.map(raw_links, &Map.from_struct/1))
+    LinkEquipment.Repo.insert_all(RawLink, Enum.map(raw_links, &Map.from_struct/1), on_conflict: :nothing)
 
-    socket = update_raw_links_list(socket, %{})
+    socket = update_raw_links_list(socket)
 
     {:noreply, assign(socket, :source, AsyncResult.ok(socket.assigns.source, source))}
   end
 
   def handle_async(:get_source, {:exit, reason}, socket) do
-    {:noreply, assign(socket, :org, AsyncResult.failed(socket.assigns.source, {:exit, reason}))}
+    {:noreply, assign(socket, :source, AsyncResult.failed(socket.assigns.source, {:exit, reason}))}
   end
 
   def handle_event("validate", params, socket) do
@@ -113,7 +125,12 @@ defmodule LinkEquipmentWeb.SourceLive do
         </.form>
       </.center>
       <.sidebar>
-        <.raw_links raw_links={@raw_links} />
+        <.raw_links
+          :if={@raw_links}
+          raw_links={@raw_links}
+          meta={@meta}
+          path={~p"/source/scan?#{Map.take(@form.params, ["source"])}"}
+        />
         <.living_source source={@source} />
       </.sidebar>
     </.stack>
@@ -122,15 +139,16 @@ defmodule LinkEquipmentWeb.SourceLive do
 
   defp raw_links(assigns) do
     ~H"""
-    <.stack tag="ul" id="raw_links_list">
-      <li :for={raw_link <- @raw_links}>
+    <Flop.Phoenix.table items={@raw_links} meta={@meta} path={@path}>
+      <:col :let={raw_link} label="Text" field={:text}>
         <.live_component
           module={RawLinkLiveComponent}
           raw_link={raw_link}
           id={"#{:base64.encode(raw_link.text)}-#{raw_link.order}"}
         />
-      </li>
-    </.stack>
+      </:col>
+      <:col :let={raw_link} label="Status" field={:status}><%= raw_link.status %></:col>
+    </Flop.Phoenix.table>
     """
   end
 
