@@ -8,19 +8,26 @@ defmodule LinkEquipmentWeb.RawLinkLiveComponent do
   alias Phoenix.LiveView.AsyncResult
 
   def mount(socket) do
-    socket
-    |> assign(:status, nil)
-    |> ok()
+    ok(socket)
   end
 
   def update(assigns, socket) do
-    raw_link = assigns[:raw_link] || socket.assigns[:raw_link]
-
     socket
-    |> assign(:status, AsyncResult.loading())
-    |> start_async(:check_status, fn -> check_status(raw_link) end)
     |> assign(assigns)
+    |> assign_status()
     |> ok()
+  end
+
+  defp assign_status(socket) do
+    if is_nil(socket.assigns[:status]) do
+      raw_link = socket.assigns.raw_link
+
+      socket
+      |> assign(:status, AsyncResult.loading())
+      |> start_async(:check_status, fn -> check_status(raw_link) end)
+    else
+      socket
+    end
   end
 
   def handle_async(:check_status, {:ok, status}, socket) do
@@ -28,11 +35,15 @@ defmodule LinkEquipmentWeb.RawLinkLiveComponent do
 
     send(self(), {:raw_link_status_updated, nil})
 
-    {:noreply, assign(socket, :status, AsyncResult.ok(socket.assigns.status, status))}
+    socket
+    |> assign(:status, AsyncResult.ok(socket.assigns.status, status))
+    |> noreply()
   end
 
   def handle_async(:check_status, {:exit, reason}, socket) do
-    {:noreply, assign(socket, :status, AsyncResult.failed(socket.assigns.status, {:exit, reason}))}
+    socket
+    |> assign(:status, AsyncResult.failed(socket.assigns.status, {:exit, reason}))
+    |> noreply()
   end
 
   def render(assigns) do
