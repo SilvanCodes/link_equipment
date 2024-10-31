@@ -22,6 +22,11 @@ defmodule Util do
       assign(socket, :params, to_form(params))
     end
 
+    @spec get_params(Socket.t()) :: params()
+    def get_params(socket) do
+      socket.assigns[:params].params
+    end
+
     @spec get_param_result(Socket.t(), atom()) :: Result.t(any())
     def get_param_result(socket, key) do
       case get_param(socket, key) do
@@ -38,9 +43,9 @@ defmodule Util do
       socket.assigns[:params][key].value
     end
 
-    @spec merged_params(params(), Socket.t()) :: params()
-    def merged_params(params, socket) do
-      Map.merge(socket.assigns.params.params, params)
+    @spec merge_params(params(), Socket.t()) :: params()
+    def merge_params(params, socket) do
+      Map.merge(get_params(socket), params)
     end
 
     @spec add_param_error(Socket.t(), atom(), any()) :: Socket.t()

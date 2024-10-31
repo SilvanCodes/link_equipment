@@ -8,69 +8,59 @@ defmodule LinkEquipmentWeb.SourceLive do
   alias Phoenix.LiveView.AsyncResult
 
   def mount(_params, _session, socket) do
-    socket =
-      if is_nil(socket.assigns[:repo]) do
-        repo = LinkEquipment.Repo.use_private_connection_repo()
-        LinkEquipment.RawLink.create_temporary_table()
-        assign(socket, :repo, repo)
-      else
-        socket
-      end
-
     socket
-    |> assign(:form, to_form(%{}))
-    |> assign(:source, nil)
-    |> assign(:raw_links, nil)
+    |> setup_raw_links_temporary_table()
     |> ok()
   end
 
-  def handle_params(%{"source" => url_input} = params, _uri, socket) do
-    socket =
-      with {:ok, uri} <- URI.new(url_input),
-           {:ok, uri} <- validate_as_remote_uri(uri) do
-        socket =
-          if should_scan?(params, socket) do
-            socket
-            |> assign(:source, AsyncResult.loading())
-            |> start_async(:get_source, fn -> get_source(URI.to_string(uri)) end)
-          else
-            socket
-          end
-
-        assign(socket, :form, to_form(params))
-      else
-        {:error, error} ->
-          assign(socket, :form, to_form(params, errors: [source: {error, []}]))
-      end
-
-    socket = update_raw_links_list(socket)
-
-    noreply(socket)
+  def handle_params(params, _uri, socket) do
+    socket
+    |> assign_params(params)
+    |> assign_source()
+    |> assign_raw_links()
+    |> noreply()
   end
 
-  def handle_params(_params, _uri, socket) do
-    noreply(socket)
+  defp assign_source(socket) do
+    with {:ok, source_url} <- get_param_result(socket, :source_url),
+         {:ok, uri} <- URI.new(source_url),
+         {:ok, uri} <- validate_as_remote_uri(uri) do
+      if socket.assigns[:source_url] == source_url do
+        socket
+      else
+        socket
+        |> assign(:source_url, source_url)
+        |> assign(:source, AsyncResult.loading())
+        |> start_async(:get_source, fn -> get_source(URI.to_string(uri)) end)
+      end
+    else
+      {:error, error} ->
+        socket
+        |> add_param_error(:source_url, error)
+        |> assign(:source, nil)
+    end
   end
 
   def handle_info({:raw_link_status_updated, nil}, socket) do
-    socket = update_raw_links_list(socket)
-    noreply(socket)
+    socket
+    |> assign_raw_links()
+    |> noreply()
   end
 
-  defp should_scan?(params, socket) do
-    socket.assigns.live_action == :scan &&
-      (not (Map.take(socket.assigns.form.params, ["source"]) == Map.take(params, ["source"])) ||
-         is_nil(socket.assigns.source))
-  end
-
-  defp update_raw_links_list(socket) do
-    case RawLink.list_raw_links(socket.assigns.form.params) do
+  defp assign_raw_links(socket) do
+    case RawLink.list_raw_links(get_params(socket)) do
       {:ok, {raw_links, meta}} ->
         assign(socket, %{raw_links: raw_links, meta: meta})
 
       {:error, _meta} ->
-        socket
+        assign(socket, %{raw_links: nil, meta: nil})
     end
+  end
+
+  def handle_async(:get_source, {:ok, {:error, error}}, socket) do
+    socket
+    |> assign(:source, AsyncResult.failed(socket.assigns.source, {:error, error}))
+    |> noreply()
   end
 
   def handle_async(:get_source, {:ok, {source, url}}, socket) do
@@ -83,27 +73,30 @@ defmodule LinkEquipmentWeb.SourceLive do
       |> URI.to_string()
 
     # could be done async
+    LinkEquipment.Repo.delete_all(RawLink)
     raw_links = source |> LinkEquipment.Lychee.extract_links() |> Enum.map(&Map.put(&1, :base, base))
-    LinkEquipment.Repo.insert_all(RawLink, Enum.map(raw_links, &Map.from_struct/1), on_conflict: :nothing)
+    LinkEquipment.Repo.insert_all(RawLink, Enum.map(raw_links, &Map.from_struct/1), on_conflict: :replace_all)
 
-    socket = update_raw_links_list(socket)
-
-    {:noreply, assign(socket, :source, AsyncResult.ok(socket.assigns.source, source))}
+    socket
+    |> assign(:source, AsyncResult.ok(socket.assigns.source, source))
+    |> assign_raw_links()
+    |> noreply()
   end
 
   def handle_async(:get_source, {:exit, reason}, socket) do
-    {:noreply, assign(socket, :source, AsyncResult.failed(socket.assigns.source, {:exit, reason}))}
-  end
-
-  def handle_event("validate", params, socket) do
     socket
-    |> push_patch(to: ~p"/source?#{Map.take(params, ["source"])}", replace: true)
+    |> assign(:source, AsyncResult.failed(socket.assigns.source, {:exit, reason}))
     |> noreply()
   end
 
   def handle_event("scan", params, socket) do
+    params =
+      params
+      |> Map.take(["source_url"])
+      |> merge_params(socket)
+
     socket
-    |> push_patch(to: ~p"/source/scan?#{params}")
+    |> push_patch(to: ~p"/source?#{params}", replace: true)
     |> noreply()
   end
 
@@ -117,28 +110,27 @@ defmodule LinkEquipmentWeb.SourceLive do
     ~H"""
     <.stack>
       <.center>
-        <.form for={@form} phx-change="validate" phx-submit="scan">
-          <.cluster>
-            <.input type="text" field={@form[:source]} label="URL:" />
-            <.button>Scan</.button>
-          </.cluster>
+        <.form for={@params} phx-change="scan">
+          <.input type="text" field={@params[:source_url]} label="URL:" />
         </.form>
       </.center>
       <.sidebar>
-        <.raw_links
-          :if={@raw_links}
-          raw_links={@raw_links}
-          meta={@meta}
-          path={~p"/source/scan?#{Map.take(@form.params, ["source"])}"}
-        />
+        <.raw_links :if={@raw_links} raw_links={@raw_links} meta={@meta} path={table_path(assigns)} />
         <.living_source source={@source} />
       </.sidebar>
     </.stack>
     """
   end
 
+  defp table_path(assigns) do
+    # prevent Flop from stacking its parameters in the url
+    params = Map.drop(assigns.params.params, ["order_by", "order_directions"])
+    ~p"/source?#{params}"
+  end
+
   defp raw_links(assigns) do
     ~H"""
+    <p>Result Count: <%= @meta.total_count %></p>
     <Flop.Phoenix.table items={@raw_links} meta={@meta} path={@path}>
       <:col :let={raw_link} label="Text" field={:text}>
         <.live_component
@@ -170,6 +162,16 @@ defmodule LinkEquipmentWeb.SourceLive do
       </:failed>
     </.async>
     """
+  end
+
+  defp setup_raw_links_temporary_table(socket) do
+    if is_nil(socket.assigns[:repo]) do
+      repo = LinkEquipment.Repo.use_exclusive_connection_repo()
+      LinkEquipment.RawLink.create_temporary_table()
+      assign(socket, :repo, repo)
+    else
+      socket
+    end
   end
 
   defp validate_as_remote_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}

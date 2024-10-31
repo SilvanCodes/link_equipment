@@ -7,8 +7,8 @@ defmodule LinkEquipment.Repo do
     query("select * from sqlite_master")
   end
 
-  @spec use_private_connection_repo() :: pid()
-  def use_private_connection_repo do
+  @spec use_exclusive_connection_repo() :: pid()
+  def use_exclusive_connection_repo do
     {:ok, repo} =
       start_link(
         name: nil,

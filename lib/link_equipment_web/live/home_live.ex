@@ -29,8 +29,10 @@ defmodule LinkEquipmentWeb.HomeLive do
   end
 
   def handle_event("validate", params, socket) do
-    params = Map.take(params, ["url_input"])
-    params = merged_params(params, socket)
+    params =
+      params
+      |> Map.take(["url_input"])
+      |> merge_params(socket)
 
     socket
     |> push_patch(to: ~p"/?#{params}", replace: true)
