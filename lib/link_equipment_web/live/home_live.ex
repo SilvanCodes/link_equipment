@@ -21,11 +21,7 @@ defmodule LinkEquipmentWeb.HomeLive do
     with {:ok, value} <- get_param(socket, :url_input),
          {:ok, uri} <- URI.new(value),
          {:ok, uri} <- validate_as_remote_uri(uri) do
-      if socket.assigns.live_action == :scan do
-        assign_async(socket, :results, fn -> scan_url(URI.to_string(uri)) end)
-      else
-        assign(socket, :results, nil)
-      end
+      assign_async(socket, :results, fn -> scan_url(URI.to_string(uri)) end)
     else
       {:error, error} ->
         socket |> assign(:results, nil) |> add_param_error(:url_input, error)
@@ -33,16 +29,11 @@ defmodule LinkEquipmentWeb.HomeLive do
   end
 
   def handle_event("validate", params, socket) do
+    params = Map.take(params, ["url_input"])
     params = merged_params(params, socket)
 
     socket
     |> push_patch(to: ~p"/?#{params}", replace: true)
-    |> noreply()
-  end
-
-  def handle_event("scan", params, socket) do
-    socket
-    |> push_patch(to: ~p"/scan?#{params}")
     |> noreply()
   end
 
@@ -62,7 +53,6 @@ defmodule LinkEquipmentWeb.HomeLive do
         <.form for={@params} phx-change="validate" phx-submit="scan">
           <.cluster>
             <.input type="text" field={@params[:url_input]} label="URL:" />
-            <.button>Scan</.button>
           </.cluster>
         </.form>
       </.center>

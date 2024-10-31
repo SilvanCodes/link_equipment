@@ -19,8 +19,6 @@ defmodule LinkEquipmentWeb.Router do
 
     live "/", HomeLive, :default
 
-    live "/scan", HomeLive, :scan
-
     live "/source", SourceLive, :default
 
     live "/source/scan", SourceLive, :scan
