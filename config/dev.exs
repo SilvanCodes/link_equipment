@@ -51,6 +51,7 @@ config :link_equipment, LinkEquipmentWeb.Endpoint,
 # Watch static and templates for browser reloading.
 config :link_equipment, LinkEquipmentWeb.Endpoint,
   live_reload: [
+    web_console_logger: true,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"lib/link_equipment_web/(controllers|live|components)/.*(ex|heex)$"
