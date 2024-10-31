@@ -22,15 +22,20 @@ defmodule Util do
       assign(socket, :params, to_form(params))
     end
 
-    @spec get_param(Socket.t(), atom()) :: Result.t(any())
-    def get_param(socket, key) do
-      case socket.assigns[:params][key].value do
+    @spec get_param_result(Socket.t(), atom()) :: Result.t(any())
+    def get_param_result(socket, key) do
+      case get_param(socket, key) do
         nil ->
           {:error, :unset}
 
         value ->
           {:ok, value}
       end
+    end
+
+    @spec get_param(Socket.t(), atom()) :: any()
+    def get_param(socket, key) do
+      socket.assigns[:params][key].value
     end
 
     @spec merged_params(params(), Socket.t()) :: params()

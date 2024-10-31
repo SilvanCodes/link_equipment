@@ -18,8 +18,8 @@ defmodule LinkEquipmentWeb.HomeLive do
   end
 
   def assign_results(socket) do
-    with {:ok, value} <- get_param(socket, :url_input),
-         {:ok, uri} <- URI.new(value),
+    with {:ok, url_input} <- get_param_result(socket, :url_input),
+         {:ok, uri} <- URI.new(url_input),
          {:ok, uri} <- validate_as_remote_uri(uri) do
       assign_async(socket, :results, fn -> scan_url(URI.to_string(uri)) end)
     else
