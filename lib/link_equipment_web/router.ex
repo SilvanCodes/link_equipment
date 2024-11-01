@@ -17,11 +17,11 @@ defmodule LinkEquipmentWeb.Router do
   scope "/", LinkEquipmentWeb do
     pipe_through :browser
 
-    live "/", HomeLive, :default
+    live "/v1", HomeLive, :default
 
-    live "/source", SourceLive, :default
+    live "/v2", SourceLive, :default
 
-    live "/source/scan", SourceLive, :scan
+    live "/v3", V3Live, :default
   end
 
   # Other scopes may use custom stacks.

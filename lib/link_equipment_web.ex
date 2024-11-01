@@ -81,6 +81,9 @@ defmodule LinkEquipmentWeb do
 
   defp html_helpers do
     quote do
+      # application components
+      import LinkEquipmentWeb.Components
+
       # Core UI components and translation
       import LinkEquipmentWeb.CoreComponents
 

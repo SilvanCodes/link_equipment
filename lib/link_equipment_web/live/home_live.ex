@@ -35,7 +35,7 @@ defmodule LinkEquipmentWeb.HomeLive do
       |> merge_params(socket)
 
     socket
-    |> push_patch(to: ~p"/?#{params}", replace: true)
+    |> push_patch(to: configured_path(params), replace: true)
     |> noreply()
   end
 
@@ -93,6 +93,8 @@ defmodule LinkEquipmentWeb.HomeLive do
       {:ok, %{results: results}}
     end
   end
+
+  defp configured_path(params), do: ~p"/v1?#{params}"
 
   defp validate_as_remote_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}
   defp validate_as_remote_uri(%URI{scheme: ""}), do: {:error, :scheme_missing}

@@ -96,9 +96,11 @@ defmodule LinkEquipmentWeb.SourceLive do
       |> merge_params(socket)
 
     socket
-    |> push_patch(to: ~p"/source?#{params}", replace: true)
+    |> push_patch(to: configured_path(params), replace: true)
     |> noreply()
   end
+
+  defp configured_path(params), do: ~p"/v2?#{params}"
 
   defp get_source(url) do
     with {:ok, source} <- SourceManager.check_source(url) do
@@ -124,8 +126,9 @@ defmodule LinkEquipmentWeb.SourceLive do
 
   defp table_path(assigns) do
     # prevent Flop from stacking its parameters in the url
-    params = Map.drop(assigns.params.params, ["order_by", "order_directions"])
-    ~p"/source?#{params}"
+    assigns.params.params
+    |> Map.drop(["order_by", "order_directions"])
+    |> configured_path()
   end
 
   defp raw_links(assigns) do
@@ -141,26 +144,6 @@ defmodule LinkEquipmentWeb.SourceLive do
       </:col>
       <:col :let={raw_link} label="Status" field={:status}><%= raw_link.status %></:col>
     </Flop.Phoenix.table>
-    """
-  end
-
-  defp living_source(assigns) do
-    ~H"""
-    <.async :let={source} :if={@source} assign={@source}>
-      <:loading>
-        <p>Getting source...</p>
-      </:loading>
-      <div id="living_source" phx-hook="LivingSource">
-        <pre>
-        <code id="basic_source">
-    <%= source %>
-        </code>
-      </pre>
-      </div>
-      <:failed :let={_failure}>
-        <p>There was an error getting the source. :(</p>
-      </:failed>
-    </.async>
     """
   end
 

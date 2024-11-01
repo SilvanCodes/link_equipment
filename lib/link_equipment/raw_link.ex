@@ -31,6 +31,16 @@ defmodule LinkEquipment.RawLink do
     field :status, :string
   end
 
+  def html_representation(%__MODULE__{} = raw_link) do
+    raw_link
+    |> Map.from_struct()
+    |> Map.values()
+    |> Enum.map(fn
+      nil -> "_"
+      val -> val
+    end)
+  end
+
   def list_raw_links(params) do
     Flop.validate_and_run(__MODULE__, params, for: __MODULE__)
   end
@@ -64,16 +74,16 @@ defmodule LinkEquipment.RawLink do
     match?({:ok, _}, validate_as_http_uri(raw_link))
   end
 
-  defp validate_as_http_uri(%__MODULE__{} = raw_link) do
+  def validate_as_http_uri(%__MODULE__{} = raw_link) do
     with {:ok, uri} <- URI.new(unvalidated_url(raw_link)) do
       validate_as_http_uri(uri)
     end
   end
 
-  defp validate_as_http_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}
-  defp validate_as_http_uri(%URI{scheme: ""}), do: {:error, :scheme_missing}
-  defp validate_as_http_uri(%URI{host: nil}), do: {:error, :host_missing}
-  defp validate_as_http_uri(%URI{host: ""}), do: {:error, :host_missing}
-  defp validate_as_http_uri(%URI{scheme: scheme} = uri) when scheme in ["http", "https"], do: {:ok, uri}
-  defp validate_as_http_uri(%URI{}), do: {:error, :not_http_or_https}
+  def validate_as_http_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}
+  def validate_as_http_uri(%URI{scheme: ""}), do: {:error, :scheme_missing}
+  def validate_as_http_uri(%URI{host: nil}), do: {:error, :host_missing}
+  def validate_as_http_uri(%URI{host: ""}), do: {:error, :host_missing}
+  def validate_as_http_uri(%URI{scheme: scheme} = uri) when scheme in ["http", "https"], do: {:ok, uri}
+  def validate_as_http_uri(%URI{}), do: {:error, :not_http_or_https}
 end

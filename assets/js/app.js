@@ -42,6 +42,10 @@ const statusElementId = rawLink => `${btoa(rawLink.dataset.text)}-${rawLink.data
 
 const collectRawLinks = () => Array.from(document.querySelectorAll('[phx-hook="LivingRawLink"]')).sort((a, b) => a.dataset.order - b.dataset.order);
 
+const parseLinks = () => document.getElementById('living_source').dataset.links.split("||").map(v => v.split("|"))
+
+const collectLinkElements = () => Array.from(document.querySelectorAll('[phx-click="link"]')).sort((a, b) => a.dataset.order - b.dataset.order);
+
 const linkStatusTransformer = {
   name: 'link-highlighter',
   preprocess(code, options) {
@@ -65,6 +69,49 @@ const linkStatusTransformer = {
             id: statusElementId(rawLink),
             tabindex: rawLink.dataset.order,
             // "phx-click": "foo"
+          },
+        });
+
+        offset = (end + 1)
+      } else {
+        console.error("failed to find text:", text)
+      }
+    }
+  }
+}
+
+const linkStatusTransformerV3 = {
+  name: 'link-highlighter',
+  preprocess(code, options) {
+    const links = parseLinks();
+    options.decorations ||= []
+
+    let offset = 0;
+
+    for (const [attribute, text, element, base, order] of links) {
+      const rawLink = {
+        dataset: {
+          text,
+          element,
+          attribute,
+          order,
+          base
+        }
+      }
+
+      const index = code.indexOf(text, offset);
+
+      if (index !== -1) {
+        const end = index + text.length;
+
+        options.decorations.push({
+          start: index,
+          end: end,
+          properties: {
+            id: statusElementId(rawLink),
+            tabindex: order,
+            "phx-click": "link",
+            "data-order": order
           },
         });
 
@@ -105,11 +152,15 @@ Hooks.LivingSource = {
       lang: 'html',
       theme: 'nord',
       transformers: [
-        linkStatusTransformer
+        // linkStatusTransformer
+        linkStatusTransformerV3
       ]
     })
 
     this.el.innerHTML = living_source;
+    const links = collectLinkElements();
+    console.log("Links found", links)
+    links.forEach(l => l.click())
   }
 }
 
@@ -164,4 +215,5 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
 
