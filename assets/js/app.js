@@ -88,7 +88,7 @@ const linkStatusTransformerV3 = {
 
     let offset = 0;
 
-    for (const [attribute, text, element, base, order] of links) {
+    for (const [element, attribute, text, base, order] of links) {
       const rawLink = {
         dataset: {
           text,
