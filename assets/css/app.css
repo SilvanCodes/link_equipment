@@ -64,3 +64,7 @@ pre, code {
     outline: 1px solid rgb(var(--link-green));
     transition: outline var(--t-4) ease-in;
 }
+
+/* .line:not(:has(> .link-status-red)) {
+    display: none;
+} */
