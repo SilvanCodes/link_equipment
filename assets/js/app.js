@@ -99,14 +99,14 @@ const linkStatusTransformerV3 = {
         }
       }
 
-      const index = code.indexOf(text, offset);
+      const start = code.indexOf(text, offset);
 
-      if (index !== -1) {
-        const end = index + text.length;
+      if (start !== -1) {
+        const end = start + text.length;
 
         options.decorations.push({
-          start: index,
-          end: end,
+          start,
+          end,
           properties: {
             id: statusElementId(rawLink),
             tabindex: order,
