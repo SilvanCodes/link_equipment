@@ -61,8 +61,31 @@ defmodule Util do
     end
   end
 
+  defmodule Option do
+    @moduledoc false
+
+    @type _some(type) :: [type]
+    @type _none :: []
+
+    @type t(type) :: _some(type) | _none()
+
+    defguard is_some(option) when is_list(option) and length(option) == 1
+    defguard is_none(option) when is_list(option) and option == []
+
+    @spec wrap(any()) :: Option.t(any())
+    def wrap(value), do: List.wrap(value)
+
+    @spec unwrap(Option.t(any())) :: any()
+    def unwrap([value]), do: value
+    def unwrap([]), do: nil
+
+    @spec map(Option.t(any()), function()) :: Option.t(any())
+    def map(option, fun), do: Enum.map(option, fun)
+  end
+
   defmodule Result do
     @moduledoc false
+    import Util.Option
 
     @type success(type) :: {:ok, type}
     @type failure :: {:error, any()}
@@ -74,24 +97,9 @@ defmodule Util do
 
     @spec error(any()) :: failure()
     def error(value), do: {:error, value}
-  end
 
-  defmodule Option do
-    @moduledoc false
-
-    @type _some(type) :: [type]
-    @type _none :: []
-
-    @type t(type) :: _some(type) | _none()
-
-    @spec wrap(any()) :: Option.t(any())
-    def wrap(value), do: List.wrap(value)
-
-    @spec unwrap(Option.t(any())) :: any()
-    def unwrap([value]), do: value
-    def unwrap([]), do: nil
-
-    @spec map(Option.t(any()), function()) :: Option.t(any())
-    def map(option, fun), do: Enum.map(option, fun)
+    @spec from_option(Option.t(any())) :: t(any())
+    def from_option(option) when is_some(option), do: option |> unwrap() |> ok()
+    def from_option(option) when is_none(option), do: option |> unwrap() |> error()
   end
 end
