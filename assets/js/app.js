@@ -42,7 +42,7 @@ const statusElementId = rawLink => `${btoa(rawLink.dataset.text)}-${rawLink.data
 
 const collectRawLinks = () => Array.from(document.querySelectorAll('[phx-hook="LivingRawLink"]')).sort((a, b) => a.dataset.order - b.dataset.order);
 
-const parseLinks = () => document.getElementById('living_source').dataset.links.split("||").map(v => v.split("|"))
+const parseLinks = () => atob(document.getElementById('living_source').dataset.links).split("||").map(v => v.split("|"))
 
 const collectLinkElements = () => Array.from(document.querySelectorAll('[phx-click="link"]')).sort((a, b) => a.dataset.order - b.dataset.order);
 

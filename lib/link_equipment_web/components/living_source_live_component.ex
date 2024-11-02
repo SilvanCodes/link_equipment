@@ -57,7 +57,7 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
       |> Enum.map(&Map.put(&1, :base, base))
       |> Enum.map(&RawLink.html_representation/1)
       |> Enum.map_join("||", &Enum.join(&1, "|"))
-      |> dbg()
+      |> :base64.encode()
 
     socket
     |> assign(:source, AsyncResult.ok(socket.assigns.source, source))
