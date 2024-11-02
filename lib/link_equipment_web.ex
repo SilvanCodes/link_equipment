@@ -97,10 +97,16 @@ defmodule LinkEquipmentWeb do
       import Util.Phoenix
 
       # helpful stuff for ok/error
-      import Util.Result
+      import Util.Result, only: [ok: 1, error: 1]
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
+
+      # helpful stuff for any()/nil
+      alias Util.Option
+
+      # helpful stuff for ok/error
+      alias Util.Result
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())
