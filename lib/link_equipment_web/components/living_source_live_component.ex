@@ -4,6 +4,7 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
 
   alias LinkEquipment.RawLink
   alias LinkEquipment.SourceManager
+  alias LinkEquipment.StatusManager
   alias Phoenix.LiveView.AsyncResult
 
   attr :source_url, :string, required: true
@@ -21,7 +22,12 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
   end
 
   defp assign_source(socket) do
-    with {:ok, url} <- foo(socket.assigns[:source_url]),
+    source_url_result =
+      socket.assigns[:source_url]
+      |> Option.wrap()
+      |> Result.from_option()
+
+    with {:ok, url} <- source_url_result,
          {:ok, uri} <- URI.new(url),
          {:ok, uri} <- RawLink.validate_as_http_uri(uri) do
       socket
@@ -32,9 +38,6 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
         assign(socket, :source, AsyncResult.failed(socket.assigns[:source] || AsyncResult.loading(), error))
     end
   end
-
-  def foo(nil), do: {:error, :unset}
-  def foo(value), do: {:ok, value}
 
   def handle_async(:get_source, {:ok, {:error, error}}, socket) do
     socket
@@ -61,7 +64,7 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
 
     socket
     |> assign(:source, AsyncResult.ok(socket.assigns.source, source))
-    |> assign(:links, raw_links)
+    |> assign(:links_encoded, raw_links)
     |> noreply()
   end
 
@@ -71,9 +74,44 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
     |> noreply()
   end
 
-  def handle_event("link", unsigned_params, socket) do
-    dbg(unsigned_params)
+  def handle_async(order, {:ok, {:ok, status_results}}, socket) when is_integer(order) do
+    socket
+    |> push_event("update-link-status", status_results)
+    |> noreply()
+  end
+
+  def handle_async(order, {:ok, {:error, status_results}}, socket) when is_integer(order) do
+    socket
+    |> push_event("update-link-status", status_results)
+    |> noreply()
+  end
+
+  def handle_async(order, unhandeled, socket) when is_integer(order) do
+    dbg(unhandeled)
+
     noreply(socket)
+  end
+
+  defp check_status(%{"text" => text, "order" => order, "base" => base}) do
+    raw_link = struct(RawLink, %{text: text, order: order, base: base})
+
+    if RawLink.http_or_https_url?(raw_link) do
+      case StatusManager.check_status(RawLink.unvalidated_url(raw_link)) do
+        {:ok, status} ->
+          {:ok, %{status: status, text: text, order: order}}
+
+        {:error, error} ->
+          {:error, %{status: error, text: text, order: order}}
+      end
+    else
+      {:error, %{status: :not_http_or_https, text: text, order: order}}
+    end
+  end
+
+  def handle_event("link", %{"order" => order} = params, socket) do
+    socket
+    |> start_async(String.to_integer(order), fn -> check_status(params) end)
+    |> noreply()
   end
 
   def render(assigns) do
@@ -83,12 +121,17 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
         <:loading>
           <p>Getting source...</p>
         </:loading>
-        <div id="living_source" phx-hook="LivingSource" data-links={@links} data-foo={["1", "2", "3"]}>
+        <div
+          id="living_source"
+          phx-hook="LivingSource"
+          data-links={@links_encoded}
+          data-target={@myself}
+        >
           <pre>
-        <code id="basic_source">
+            <code id="basic_source">
     <%= source %>
-        </code>
-      </pre>
+            </code>
+          </pre>
         </div>
         <:failed :let={_failure}>
           <p>There was an error getting the source. :(</p>

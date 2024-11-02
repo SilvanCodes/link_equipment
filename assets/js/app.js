@@ -111,6 +111,10 @@ const linkStatusTransformerV3 = {
             id: statusElementId(rawLink),
             tabindex: order,
             "phx-click": "link",
+            "phx-target": document.getElementById('living_source').dataset.target,
+            "phx-value-text": text,
+            "phx-value-base": base,
+            "phx-value-order": order,
             "data-order": order
           },
         });
@@ -158,9 +162,8 @@ Hooks.LivingSource = {
     })
 
     this.el.innerHTML = living_source;
-    const links = collectLinkElements();
-    console.log("Links found", links)
-    links.forEach(l => l.click())
+    // fire phx-click for every link in source
+    collectLinkElements().forEach(l => l.click());
   }
 }
 
@@ -186,6 +189,27 @@ Hooks.LivingRawLink = {
     }
   }
 }
+
+window.addEventListener("phx:update-link-status", (e) => {
+  const { status, text, order } = e.detail;
+
+  const rawLink = {
+    dataset: {
+      text,
+      order,
+    }
+  }
+
+  const statusElement = document.getElementById(statusElementId(rawLink));
+
+  if (statusElement) {
+    const [cssClass, title] = statusData(`${status}`);
+
+    // should eventually remove "old" status classes
+    statusElement.classList.add(cssClass);
+    statusElement.title = title
+  }
+})
 
 window.addEventListener("phx:live_reload:attached", ({ detail: reloader }) => {
   // Enable server log streaming to client.

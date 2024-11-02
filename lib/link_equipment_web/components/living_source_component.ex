@@ -2,13 +2,7 @@ defmodule LinkEquipmentWeb.LivingSourceComponent do
   @moduledoc false
   use LinkEquipmentWeb, :html
 
-  alias Phoenix.LiveView.AsyncResult
-
-  # attr :source, AsyncResult, required: true
-
   def render(assigns) do
-    # should this call Lychee.extract_links itself?
-
     ~H"""
     <.async :let={source} :if={@source} assign={@source}>
       <:loading>

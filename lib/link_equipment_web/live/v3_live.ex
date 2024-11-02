@@ -14,11 +14,6 @@ defmodule LinkEquipmentWeb.V3Live do
     |> noreply()
   end
 
-  def handle_event("link", unsigned_params, socket) do
-    dbg(unsigned_params)
-    noreply(socket)
-  end
-
   def handle_event("scan", params, socket) do
     params =
       params
