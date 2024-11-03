@@ -163,6 +163,8 @@ Hooks.LivingSource = {
     })
 
     this.el.innerHTML = living_source;
+    // parsing by shiki seems to produce some empty lines, fix this
+    Array.from(document.querySelectorAll(".line:empty")).forEach(l => l.remove())
     this.pushEventTo(target, "check-status", {})
   }
 }
