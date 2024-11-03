@@ -49,8 +49,6 @@ const collectRawLinks = () => Array.from(document.querySelectorAll('[phx-hook="L
 
 const parseLinks = () => atob(document.getElementById('living_source').dataset.links).split("||").map(v => v.split("|"))
 
-const collectLinkElements = () => Array.from(document.querySelectorAll('[phx-click="link"]')).sort((a, b) => a.dataset.order - b.dataset.order);
-
 const linkStatusTransformer = {
   name: 'link-highlighter',
   preprocess(code, options) {
@@ -114,13 +112,7 @@ const linkStatusTransformerV3 = {
           end,
           properties: {
             id: statusElementId(rawLink),
-            tabindex: order,
-            "phx-click": "link",
-            "phx-target": document.getElementById('living_source').dataset.target,
-            "phx-value-text": text,
-            "phx-value-base": base,
-            "phx-value-order": order,
-            "data-order": order
+            tabindex: order
           },
         });
 
@@ -155,7 +147,10 @@ Hooks.LivingSource = {
     this.updated();
   },
   updated() {
-    let source = document.getElementById("basic_source").textContent;
+    const ivingSourceElement = document.getElementById('living_source')
+    const source = ivingSourceElement.textContent;
+    const target = ivingSourceElement.dataset.target
+
 
     let living_source = window.highlighter.codeToHtml(source, {
       lang: 'html',
@@ -168,8 +163,7 @@ Hooks.LivingSource = {
     })
 
     this.el.innerHTML = living_source;
-    // fire phx-click for every link in source
-    collectLinkElements().forEach(l => l.click());
+    this.pushEventTo(target, "check-status", {})
   }
 }
 

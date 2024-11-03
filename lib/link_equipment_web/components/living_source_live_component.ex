@@ -58,13 +58,18 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
       source
       |> LinkEquipment.Lychee.extract_links()
       |> Enum.map(&Map.put(&1, :base, base))
+
+    encoded_links =
+      raw_links
       |> Enum.map(&RawLink.html_representation/1)
       |> Enum.map_join("||", &Enum.join(&1, "|"))
       |> :base64.encode()
 
     socket
     |> assign(:source, AsyncResult.ok(socket.assigns.source, source))
-    |> assign(:links_encoded, raw_links)
+    |> assign(:base, base)
+    |> assign(:raw_links, raw_links)
+    |> assign(:encoded_links, encoded_links)
     |> noreply()
   end
 
@@ -74,27 +79,25 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
     |> noreply()
   end
 
-  def handle_async(order, {:ok, {:ok, status_results}}, socket) when is_integer(order) do
+  def handle_async("check-status-" <> _order, {:ok, {:ok, status_results}}, socket) do
     socket
     |> push_event("update-link-status", status_results)
     |> noreply()
   end
 
-  def handle_async(order, {:ok, {:error, status_results}}, socket) when is_integer(order) do
+  def handle_async("check-status-" <> _order, {:ok, {:error, status_results}}, socket) do
     socket
     |> push_event("update-link-status", status_results)
     |> noreply()
   end
 
-  def handle_async(order, unhandeled, socket) when is_integer(order) do
+  def handle_async("check-status-" <> _order, unhandeled, socket) do
     dbg(unhandeled)
 
     noreply(socket)
   end
 
-  defp check_status(%{"text" => text, "order" => order, "base" => base}) do
-    raw_link = struct(RawLink, %{text: text, order: order, base: base})
-
+  defp check_status(%RawLink{text: text, order: order} = raw_link) do
     if RawLink.http_or_https_url?(raw_link) do
       case StatusManager.check_status(RawLink.unvalidated_url(raw_link)) do
         {:ok, status} ->
@@ -108,9 +111,15 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
     end
   end
 
-  def handle_event("link", %{"order" => order} = params, socket) do
+  def check_status_all(socket) do
+    Enum.reduce(socket.assigns.raw_links, socket, fn raw_link, socket ->
+      start_async(socket, "check-status-#{raw_link.order}", fn -> check_status(raw_link) end)
+    end)
+  end
+
+  def handle_event("check-status", _params, socket) do
     socket
-    |> start_async(String.to_integer(order), fn -> check_status(params) end)
+    |> check_status_all()
     |> noreply()
   end
 
@@ -124,7 +133,7 @@ defmodule LinkEquipmentWeb.LivingSourceLiveComponent do
         <div
           id="living_source"
           phx-hook="LivingSource"
-          data-links={@links_encoded}
+          data-links={@encoded_links}
           data-target={@myself}
         >
           <pre>
