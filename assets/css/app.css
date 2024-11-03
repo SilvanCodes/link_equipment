@@ -69,3 +69,36 @@ pre, code {
     display: block;
     max-inline-size: none;
 }
+
+/* only show lines with red status */
+.line:not(:has(> .link-status-red)) {
+    /* display: none; */
+}
+
+/* show preceeding line of red status */
+.line:has(+ .line > .link-status-red) {
+    display: block;
+}
+
+/* show following line of red status */
+.line:has(> .link-status-red) + .line {
+    display: block;
+}
+
+/* separate contexts of red status unless they overlap, line after */
+.line:has(> .link-status-red) + .line:not(:has(> .link-status-red, + .line > .link-status-red))::after {
+    content: '';
+    display: block;
+    max-inline-size: none;
+    height: 1px;
+    background-color: white;
+}
+
+/* separate contexts of red status unless they overlap, line before */
+.line:not(:has(> .link-status-red)) + .line:has(+ .line > .link-status-red):not(:has(> .link-status-red))::before {
+    content: '';
+    display: block;
+    max-inline-size: none;
+    height: 1px;
+    background-color: white;
+}
