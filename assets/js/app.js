@@ -26,6 +26,11 @@ import topbar from "../vendor/topbar"
 
 import { createHighlighter } from 'shiki'
 
+
+import {
+  transformerRemoveLineBreak,
+} from '@shikijs/transformers'
+
 // `createHighlighter` is async, it initializes the internal and
 // loads the themes and languages specified.
 (async () => {
@@ -157,7 +162,8 @@ Hooks.LivingSource = {
       theme: 'nord',
       transformers: [
         // linkStatusTransformer
-        linkStatusTransformerV3
+        linkStatusTransformerV3,
+        transformerRemoveLineBreak()
       ]
     })
 

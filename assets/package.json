@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@shikijs/transformers": "^1.22.2",
     "shiki": "^1.22.1"
   }
 }

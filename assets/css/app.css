@@ -65,6 +65,7 @@ pre, code {
     transition: outline var(--t-4) ease-in;
 }
 
-/* .line:not(:has(> .link-status-red)) {
-    display: none;
-} */
+.line {
+    display: block;
+    max-inline-size: none;
+}
