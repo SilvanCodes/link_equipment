@@ -205,7 +205,7 @@ window.addEventListener("phx:update-link-status", (e) => {
   if (statusElement) {
     const [cssClass, title] = statusData(`${status}`);
 
-    // should eventually remove "old" status classes
+    statusElement.classList.remove("link-status-red", "link-status-yellow", "link-status-green")
     statusElement.classList.add(cssClass);
     statusElement.title = title
   }
