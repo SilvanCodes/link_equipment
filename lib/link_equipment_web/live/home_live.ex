@@ -56,7 +56,7 @@ defmodule LinkEquipmentWeb.HomeLive do
       <.center>
         <.form for={@params} phx-change="validate" phx-submit="scan">
           <.cluster>
-            <.input type="text" field={@params[:url_input]} label="URL:" />
+            <.input type="text" field={@params[:url_input]} label="URL:" phx-debounce="200" />
           </.cluster>
         </.form>
       </.center>
