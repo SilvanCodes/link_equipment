@@ -1,7 +1,11 @@
 defmodule LinkEquipment.SourceManager do
   @moduledoc false
 
+  alias Util.Result
+
   @cache_name :source_cache
+
+  @spec check_source(URI.t()) :: Result.t(String.t())
   def check_source(url) do
     case Cachex.fetch(@cache_name, url, fn url -> get_source(url) end) do
       {:ignore, {:error, error}} ->

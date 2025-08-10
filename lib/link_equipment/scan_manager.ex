@@ -1,7 +1,12 @@
 defmodule LinkEquipment.ScanManager do
   @moduledoc false
 
+  alias LinkEquipment.Link
+  alias Util.Result
+
   @cache_name :scan_cache
+
+  @spec check_scan(URI.t()) :: Result.t([Link.t()])
   def check_scan(url) do
     case Cachex.fetch(@cache_name, url, fn url -> get_scan(url) end) do
       {:ignore, {:error, error}} ->
