@@ -35,11 +35,12 @@ defmodule LinkEquipmentWeb.V3Live do
           <.input type="text" field={@params[:source_url]} label="URL:" />
         </.form>
       </.center>
+
       <.live_component
-        if={@params[:source_url].value}
-        id={:base64.encode(@params[:source_url].value)}
+        :if={source_url = @params[:source_url].value}
+        id={:base64.encode(source_url)}
         module={LivingSourceLiveComponent}
-        source_url={@params[:source_url].value}
+        source_url={source_url}
       />
     </.stack>
     """
