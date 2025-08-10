@@ -2,6 +2,8 @@ defmodule LinkEquipmentWeb.HomeLive do
   @moduledoc false
   use LinkEquipmentWeb, :live_view
 
+  import Util.Validation, only: [validate_as_remote_uri: 1]
+
   alias LinkEquipment.ScanManager
   alias LinkEquipmentWeb.LinkLiveComponent
 
@@ -95,18 +97,4 @@ defmodule LinkEquipmentWeb.HomeLive do
   end
 
   defp configured_path(params), do: ~p"/v1?#{params}"
-
-  defp validate_as_remote_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}
-  defp validate_as_remote_uri(%URI{scheme: ""}), do: {:error, :scheme_missing}
-  defp validate_as_remote_uri(%URI{scheme: scheme}) when scheme not in ["http", "https"], do: {:error, :not_http_or_https}
-  defp validate_as_remote_uri(%URI{host: nil}), do: {:error, :host_missing}
-  defp validate_as_remote_uri(%URI{host: ""}), do: {:error, :host_missing}
-
-  defp validate_as_remote_uri(%URI{host: host} = uri) do
-    if String.contains?(host, ".") do
-      {:ok, uri}
-    else
-      {:error, :missing_apex_domain}
-    end
-  end
 end

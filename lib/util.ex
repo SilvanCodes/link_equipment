@@ -102,4 +102,28 @@ defmodule Util do
     def from_option(option) when is_some(option), do: option |> unwrap() |> ok()
     def from_option(option) when is_none(option), do: option |> unwrap() |> error()
   end
+
+  defmodule Validation do
+    @moduledoc false
+
+    @spec validate_as_remote_uri(URI.t()) :: Result.t(URI.t())
+    def validate_as_remote_uri(uri)
+
+    def validate_as_remote_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}
+    def validate_as_remote_uri(%URI{scheme: ""}), do: {:error, :scheme_missing}
+
+    def validate_as_remote_uri(%URI{scheme: scheme}) when scheme not in ["http", "https"],
+      do: {:error, :not_http_or_https}
+
+    def validate_as_remote_uri(%URI{host: nil}), do: {:error, :host_missing}
+    def validate_as_remote_uri(%URI{host: ""}), do: {:error, :host_missing}
+
+    def validate_as_remote_uri(%URI{host: host} = uri) do
+      if String.contains?(host, ".") do
+        {:ok, uri}
+      else
+        {:error, :missing_apex_domain}
+      end
+    end
+  end
 end

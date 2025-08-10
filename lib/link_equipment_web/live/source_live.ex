@@ -2,6 +2,8 @@ defmodule LinkEquipmentWeb.SourceLive do
   @moduledoc false
   use LinkEquipmentWeb, :live_view
 
+  import Util.Validation, only: [validate_as_remote_uri: 1]
+
   alias LinkEquipment.RawLink
   alias LinkEquipment.SourceManager
   alias LinkEquipmentWeb.RawLinkLiveComponent
@@ -156,10 +158,4 @@ defmodule LinkEquipmentWeb.SourceLive do
       socket
     end
   end
-
-  defp validate_as_remote_uri(%URI{scheme: nil}), do: {:error, :scheme_missing}
-  defp validate_as_remote_uri(%URI{scheme: ""}), do: {:error, :scheme_missing}
-  defp validate_as_remote_uri(%URI{host: nil}), do: {:error, :host_missing}
-  defp validate_as_remote_uri(%URI{host: ""}), do: {:error, :host_missing}
-  defp validate_as_remote_uri(%URI{} = uri), do: {:ok, uri}
 end
